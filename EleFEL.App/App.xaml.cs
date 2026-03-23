@@ -68,9 +68,23 @@ public partial class App : Application
 
     private void SetupTrayIcon()
     {
+        // Load icon from Assets folder
+        var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "EleFEL.ico");
+        System.Drawing.Icon? appIcon = null;
+        if (System.IO.File.Exists(iconPath))
+        {
+            appIcon = new System.Drawing.Icon(iconPath);
+        }
+        else
+        {
+            // Fallback: use default application icon
+            appIcon = System.Drawing.SystemIcons.Application;
+        }
+
         _trayIcon = new System.Windows.Forms.NotifyIcon
         {
             Text = "EleFEL - Conector FEL Guatemala",
+            Icon = appIcon,
             Visible = true
         };
 
