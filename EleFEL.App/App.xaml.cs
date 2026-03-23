@@ -1,6 +1,7 @@
 using System.Windows;
 using EleFEL.Core.Models;
 using EleFEL.Core.Services;
+using Application = System.Windows.Application;
 
 namespace EleFEL.App;
 
