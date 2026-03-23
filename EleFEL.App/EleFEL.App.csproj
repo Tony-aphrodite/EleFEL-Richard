@@ -19,7 +19,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
-    <PackageReference Include="Firebird.Embedded" Version="3.0.0.32485" />
   </ItemGroup>
 
   <ItemGroup>

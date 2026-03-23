@@ -68,7 +68,6 @@ public class EleventaPollingService : IDisposable
                     v.NUMERO_ARTICULOS as NumberOfItems
                 FROM VENTATICKETS v
                 WHERE v.ID > @LastId
-                AND v.ESTA_CANCELADO = 0
                 AND v.VENDIDO_EN IS NOT NULL
                 ORDER BY v.ID ASC
                 """;
