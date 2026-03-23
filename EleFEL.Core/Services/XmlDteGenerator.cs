@@ -129,7 +129,18 @@ public class XmlDteGenerator
     {
         var frases = new XElement(DteNs + "Frases");
 
-        if (dteType == "FPEQ")
+        // Use frases from config if available
+        if (_emitter.Frases.Count > 0)
+        {
+            foreach (var frase in _emitter.Frases)
+            {
+                frases.Add(new XElement(DteNs + "Frase",
+                    new XAttribute("CodigoEscenario", frase.CodigoEscenario.ToString()),
+                    new XAttribute("TipoFrase", frase.TipoFrase.ToString())
+                ));
+            }
+        }
+        else if (dteType == "FPEQ")
         {
             // Pequeño Contribuyente - exempt from IVA
             frases.Add(new XElement(DteNs + "Frase",
@@ -143,11 +154,6 @@ public class XmlDteGenerator
             frases.Add(new XElement(DteNs + "Frase",
                 new XAttribute("CodigoEscenario", "1"),
                 new XAttribute("TipoFrase", "1")
-            ));
-            // Agente de Retención del IVA (TipoFrase 2) - per official XML example
-            frases.Add(new XElement(DteNs + "Frase",
-                new XAttribute("CodigoEscenario", "1"),
-                new XAttribute("TipoFrase", "2")
             ));
         }
 

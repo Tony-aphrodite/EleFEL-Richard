@@ -45,6 +45,15 @@ public class InfileCertifier : IFelCertifier, IDisposable
         {
             // Step 1: Sign the XML (public endpoint, no auth)
             _log.LogInfo("Step 1: Signing XML with Infile...");
+            // Save generated XML for debugging
+            try
+            {
+                var debugDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Debug");
+                Directory.CreateDirectory(debugDir);
+                File.WriteAllText(Path.Combine(debugDir, $"last_xml_{DateTime.Now:HHmmss}.xml"), xmlContent);
+                _log.LogInfo($"Debug XML saved to Debug folder");
+            }
+            catch { }
             var signedXmlBase64 = await SignXmlAsync(xmlContent, isAnulacion: false);
             if (signedXmlBase64 == null)
             {

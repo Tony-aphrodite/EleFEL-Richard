@@ -67,6 +67,13 @@ public class EmitterConfig
     public string TaxpayerType { get; set; } = "GEN"; // GEN = General, PEQ = Pequeño Contribuyente
     public string CurrencyCode { get; set; } = "GTQ";
     public string EstablishmentCode { get; set; } = "1";
+    public List<FraseConfig> Frases { get; set; } = new();
+}
+
+public class FraseConfig
+{
+    public int TipoFrase { get; set; }
+    public int CodigoEscenario { get; set; }
 }
 
 public class PrinterConfig
