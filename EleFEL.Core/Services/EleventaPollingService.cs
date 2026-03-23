@@ -16,6 +16,12 @@ public class EleventaPollingService : IDisposable
     {
         _log = log;
 
+        // Find Firebird embedded client library in app directory
+        var appDir = AppDomain.CurrentDomain.BaseDirectory;
+        var fbClientPath = Path.Combine(appDir, "fbembed.dll");
+        if (!File.Exists(fbClientPath))
+            fbClientPath = Path.Combine(appDir, "fbclient.dll");
+
         // Eleventa uses embedded Firebird - connect in read-only mode
         var csb = new FbConnectionStringBuilder
         {
@@ -26,7 +32,12 @@ public class EleventaPollingService : IDisposable
             Charset = "UTF8",
             Pooling = false
         };
+
+        if (File.Exists(fbClientPath))
+            csb.ClientLibrary = fbClientPath;
+
         _connectionString = csb.ToString();
+        _log.LogInfo($"Firebird connection configured: DB={config.DatabasePath}");
     }
 
     /// <summary>
