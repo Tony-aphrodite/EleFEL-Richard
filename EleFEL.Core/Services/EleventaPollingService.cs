@@ -53,21 +53,24 @@ public class EleventaPollingService : IDisposable
             await connection.OpenAsync();
 
             // Eleventa uses VENTATICKETS as the main sales table
-            // Database file: PDVDATA.FDB
+            // Database file: PDVDATA.FDB - verified column names from actual DB
             const string salesQuery = """
                 SELECT
-                    v.TICKET_ID as SaleId,
-                    v.FECHA as SaleDate,
+                    v.ID as SaleId,
+                    v.FOLIO as Folio,
+                    v.VENDIDO_EN as SaleDate,
                     v.TOTAL as Total,
                     v.SUBTOTAL as Subtotal,
-                    v.IMPUESTO1TOTAL as TaxAmount,
+                    v.IMPUESTOS as TaxAmount,
                     v.FORMA_PAGO as PaymentMethod,
                     v.CAJA_ID as TerminalId,
-                    v.CAJERO_ID as CashierName
+                    v.NOMBRE as CashierName,
+                    v.NUMERO_ARTICULOS as NumberOfItems
                 FROM VENTATICKETS v
-                WHERE v.TICKET_ID > @LastId
-                AND v.ESTADO != 'CANCELADA'
-                ORDER BY v.TICKET_ID ASC
+                WHERE v.ID > @LastId
+                AND v.ESTA_CANCELADO = 0
+                AND v.VENDIDO_EN IS NOT NULL
+                ORDER BY v.ID ASC
                 """;
 
             await using var salesCmd = new FbCommand(salesQuery, connection);
@@ -79,13 +82,15 @@ public class EleventaPollingService : IDisposable
                 var sale = new EleventaSale
                 {
                     SaleId = reader.GetInt64(reader.GetOrdinal("SaleId")),
+                    Folio = reader.GetInt32(reader.GetOrdinal("Folio")),
                     SaleDate = reader.GetDateTime(reader.GetOrdinal("SaleDate")),
                     Total = reader.GetDecimal(reader.GetOrdinal("Total")),
                     Subtotal = reader.GetDecimal(reader.GetOrdinal("Subtotal")),
                     TaxAmount = reader.GetDecimal(reader.GetOrdinal("TaxAmount")),
-                    PaymentMethod = reader.GetString(reader.GetOrdinal("PaymentMethod")),
+                    PaymentMethod = reader.IsDBNull(reader.GetOrdinal("PaymentMethod")) ? "" : reader.GetString(reader.GetOrdinal("PaymentMethod")),
                     TerminalId = reader.GetInt32(reader.GetOrdinal("TerminalId")),
-                    CashierName = reader.GetString(reader.GetOrdinal("CashierName"))
+                    CashierName = reader.IsDBNull(reader.GetOrdinal("CashierName")) ? "" : reader.GetString(reader.GetOrdinal("CashierName")),
+                    NumberOfItems = reader.GetInt32(reader.GetOrdinal("NumberOfItems"))
                 };
 
                 sale.Items = await GetSaleItemsAsync(connection, sale.SaleId);
@@ -113,16 +118,18 @@ public class EleventaPollingService : IDisposable
 
             const string query = """
                 SELECT
-                    v.TICKET_ID as SaleId,
-                    v.FECHA as SaleDate,
+                    v.ID as SaleId,
+                    v.FOLIO as Folio,
+                    v.VENDIDO_EN as SaleDate,
                     v.TOTAL as Total,
                     v.SUBTOTAL as Subtotal,
-                    v.IMPUESTO1TOTAL as TaxAmount,
+                    v.IMPUESTOS as TaxAmount,
                     v.FORMA_PAGO as PaymentMethod,
                     v.CAJA_ID as TerminalId,
-                    v.CAJERO_ID as CashierName
+                    v.NOMBRE as CashierName,
+                    v.NUMERO_ARTICULOS as NumberOfItems
                 FROM VENTATICKETS v
-                WHERE v.TICKET_ID = @SaleId
+                WHERE v.ID = @SaleId
                 """;
 
             await using var cmd = new FbCommand(query, connection);
@@ -134,13 +141,15 @@ public class EleventaPollingService : IDisposable
                 var sale = new EleventaSale
                 {
                     SaleId = reader.GetInt64(reader.GetOrdinal("SaleId")),
+                    Folio = reader.GetInt32(reader.GetOrdinal("Folio")),
                     SaleDate = reader.GetDateTime(reader.GetOrdinal("SaleDate")),
                     Total = reader.GetDecimal(reader.GetOrdinal("Total")),
                     Subtotal = reader.GetDecimal(reader.GetOrdinal("Subtotal")),
                     TaxAmount = reader.GetDecimal(reader.GetOrdinal("TaxAmount")),
-                    PaymentMethod = reader.GetString(reader.GetOrdinal("PaymentMethod")),
+                    PaymentMethod = reader.IsDBNull(reader.GetOrdinal("PaymentMethod")) ? "" : reader.GetString(reader.GetOrdinal("PaymentMethod")),
                     TerminalId = reader.GetInt32(reader.GetOrdinal("TerminalId")),
-                    CashierName = reader.GetString(reader.GetOrdinal("CashierName"))
+                    CashierName = reader.IsDBNull(reader.GetOrdinal("CashierName")) ? "" : reader.GetString(reader.GetOrdinal("CashierName")),
+                    NumberOfItems = reader.GetInt32(reader.GetOrdinal("NumberOfItems"))
                 };
 
                 sale.Items = await GetSaleItemsAsync(connection, sale.SaleId);
@@ -160,21 +169,22 @@ public class EleventaPollingService : IDisposable
         var items = new List<EleventaSaleItem>();
 
         // VENTATICKETS_ARTICULOS contains the line items for each sale
+        // Column names verified from actual PDVDATA.FDB
         const string itemsQuery = """
             SELECT
-                d.ARTICULO_ID as ItemId,
+                d.ID as ItemId,
                 d.TICKET_ID as SaleId,
-                d.CLAVE as ProductCode,
-                d.DESCRIPCION as Description,
+                d.PRODUCTO_CODIGO as ProductCode,
+                d.PRODUCTO_NOMBRE as Description,
                 d.CANTIDAD as Quantity,
                 'UND' as UnitOfMeasure,
                 d.PRECIO_USADO as UnitPrice,
-                d.DESCUENTO as Discount,
-                d.IMPORTE as LineTotal,
-                d.IMPUESTO_MONTO as TaxAmount
+                d.PORCENTAJE_DESCUENTO as Discount,
+                d.TOTAL_ARTICULO as LineTotal,
+                d.IMPUESTO_UNITARIO as TaxAmount
             FROM VENTATICKETS_ARTICULOS d
             WHERE d.TICKET_ID = @SaleId
-            ORDER BY d.ARTICULO_ID ASC
+            ORDER BY d.ID ASC
             """;
 
         await using var cmd = new FbCommand(itemsQuery, connection);
