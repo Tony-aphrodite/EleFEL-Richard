@@ -1,0 +1,7 @@
+<dte:GTAnulacionDocumento xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:dte="http://www.sat.gob.gt/dte/fel/0.1.0" xmlns:n1="http://www.altova.com/samplexml/other-namespace" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="0.1" xsi:schemaLocation="http://www.sat.gob.gt/dte/fel/0.1.0 C:\Users\User\Desktop\FEL\Esquemas\GT_AnulacionDocumento-0.1.0.xsd">
+  <dte:SAT>
+    <dte:AnulacionDTE ID="DatosCertificados">
+      <dte:DatosGenerales FechaEmisionDocumentoAnular="2020-04-21T00:00:00-06:00" FechaHoraAnulacion="2020-04-21T00:00:00-06:00" ID="DatosAnulacion" IDReceptor="76365204" MotivoAnulacion="PRUEBA DE ANULACIÓN" NITEmisor="1000000000K" NumeroDocumentoAAnular="BC779C8E-65EE-43F4-AB6E-B0A331CAE824"></dte:DatosGenerales>
+    </dte:AnulacionDTE>
+  </dte:SAT>
+</dte:GTAnulacionDocumento>

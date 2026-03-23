@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dte:GTDocumento xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:dte="http://www.sat.gob.gt/dte/fel/0.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="0.1" xsi:schemaLocation="http://www.sat.gob.gt/dte/fel/0.2.0">
+  <dte:SAT ClaseDocumento="dte">
+    <dte:DTE ID="DatosCertificados">
+      <dte:DatosEmision ID="DatosEmision">
+        <dte:DatosGenerales CodigoMoneda="GTQ" FechaHoraEmision="2020-06-16T19:14:24-06:00" Tipo="NCRE"></dte:DatosGenerales>
+        <dte:Emisor AfiliacionIVA="GEN" CodigoEstablecimiento="1" CorreoEmisor="wilmer.cumes@myappsoftware.com" NITEmisor="83360484" NombreComercial="Myappsoftware" NombreEmisor="MYAPPSOFTWARE, SOCIEDAD ANONIMA">
+          <dte:DireccionEmisor>
+            <dte:Direccion>11 calle 0-38, Zona 14 Guatemala</dte:Direccion>
+            <dte:CodigoPostal>01001</dte:CodigoPostal>
+            <dte:Municipio>Guatemala</dte:Municipio>
+            <dte:Departamento>Guatemala</dte:Departamento>
+            <dte:Pais>GT</dte:Pais>
+          </dte:DireccionEmisor>
+        </dte:Emisor>
+        <dte:Receptor CorreoReceptor="wilmer.cumes@myappsoftware.com" IDReceptor="74303856" NombreReceptor="Comercializadora y Productora de Bebidas Los Volcanes S.A.                     ">
+          <dte:DireccionReceptor>
+            <dte:Direccion>36 CALLE 10-41 ZONA 16 PASEO CAYALÁ OF. 401 NIVEL 4 EDIFICIO E DISTRITO MODA CAYALÁ GUATEMALA, GUATEMALA</dte:Direccion>
+            <dte:CodigoPostal>01001</dte:CodigoPostal>
+            <dte:Municipio>Guatemala</dte:Municipio>
+            <dte:Departamento>Guatemala</dte:Departamento>
+            <dte:Pais>GT</dte:Pais>
+          </dte:DireccionReceptor>
+        </dte:Receptor>
+        <dte:Items>
+          <dte:Item BienOServicio="S" NumeroLinea="1">
+            <dte:Cantidad>1</dte:Cantidad>
+            <dte:UnidadMedida>UND</dte:UnidadMedida>
+            <dte:Descripcion>Servicio de transferencia de datos a AWS</dte:Descripcion>
+            <dte:PrecioUnitario>208172.77</dte:PrecioUnitario>
+            <dte:Precio>208172.77</dte:Precio>
+            <dte:Descuento>0</dte:Descuento>
+            <dte:Impuestos>
+              <dte:Impuesto>
+                <dte:NombreCorto>IVA</dte:NombreCorto>
+                <dte:CodigoUnidadGravable>1</dte:CodigoUnidadGravable>
+                <dte:MontoGravable>185868.54464</dte:MontoGravable>
+                <dte:MontoImpuesto>22304.22536</dte:MontoImpuesto>
+              </dte:Impuesto>
+            </dte:Impuestos>
+            <dte:Total>208172.77</dte:Total>
+          </dte:Item>
+        </dte:Items>
+        <dte:Totales>
+          <dte:TotalImpuestos>
+            <dte:TotalImpuesto NombreCorto="IVA" TotalMontoImpuesto="22304.23"></dte:TotalImpuesto>
+          </dte:TotalImpuestos>
+          <dte:GranTotal>208172.77</dte:GranTotal>
+        </dte:Totales>
+        <dte:Complementos>
+          <dte:Complemento IDComplemento="Notas" NombreComplemento="Notas" URIComplemento="Notas">
+            <cno:ReferenciasNota xmlns:cno="http://www.sat.gob.gt/face2/ComplementoReferenciaNota/0.1.0" FechaEmisionDocumentoOrigen="2020-04-20" MotivoAjuste="prueba nota de credito a facturas con regimen antiguo" NumeroAutorizacionDocumentoOrigen="2017-5-687029-10154" NumeroDocumentoOrigen="200000005979" RegimenAntiguo="Antiguo" SerieDocumentoOrigen="MY" Version="0.0" xsi:schemaLocation="http://www.sat.gob.gt/face2/ComplementoReferenciaNota/0.1.0 C:\Users\User\Desktop\FEL\Esquemas\GT_Complemento_Referencia_Nota-0.1.0.xsd"></cno:ReferenciasNota>
+          </dte:Complemento>
+        </dte:Complementos>
+      </dte:DatosEmision>
+    </dte:DTE>
+    <dte:Adenda>
+      <factura></factura>
+    </dte:Adenda>
+  </dte:SAT>
+</dte:GTDocumento>

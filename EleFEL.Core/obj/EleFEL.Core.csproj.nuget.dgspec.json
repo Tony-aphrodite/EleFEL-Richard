@@ -1,0 +1,91 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj": {}
+  },
+  "projects": {
+    "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj",
+        "projectName": "EleFEL.Core",
+        "projectPath": "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj",
+        "packagesPath": "/home/houseph/.nuget/packages/",
+        "outputPath": "/home/houseph/Project/BId/EleFEL/EleFEL.Core/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/houseph/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.35, )"
+            },
+            "FirebirdSql.Data.FirebirdClient": {
+              "target": "Package",
+              "version": "[10.3.1, )"
+            },
+            "Microsoft.Data.Sqlite": {
+              "target": "Package",
+              "version": "[8.0.10, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "Polly": {
+              "target": "Package",
+              "version": "[8.4.2, )"
+            },
+            "QuestPDF": {
+              "target": "Package",
+              "version": "[2024.10.2, )"
+            },
+            "System.Text.Json": {
+              "target": "Package",
+              "version": "[8.0.5, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.125/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

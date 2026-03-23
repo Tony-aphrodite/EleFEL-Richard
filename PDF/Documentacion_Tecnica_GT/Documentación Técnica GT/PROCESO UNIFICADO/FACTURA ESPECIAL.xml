@@ -1,0 +1,61 @@
+<dte:GTDocumento xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:dte="http://www.sat.gob.gt/dte/fel/0.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="0.1" xsi:schemaLocation="http://www.sat.gob.gt/dte/fel/0.2.0">
+  <dte:SAT ClaseDocumento="dte">
+    <dte:DTE ID="DatosCertificados">
+      <dte:DatosEmision ID="DatosEmision">
+        <dte:DatosGenerales CodigoMoneda="GTQ" FechaHoraEmision="2020-04-21T00:00:00-06:00" Tipo="FESP"></dte:DatosGenerales>
+        <dte:Emisor AfiliacionIVA="GEN" CodigoEstablecimiento="1" CorreoEmisor="demo@demo.com.gt" NITEmisor="1000000000K" NombreComercial="DEMO" NombreEmisor="DEMO, SOCIEDAD ANONIMA">
+          <dte:DireccionEmisor>
+            <dte:Direccion>CUIDAD</dte:Direccion>
+            <dte:CodigoPostal>01001</dte:CodigoPostal>
+            <dte:Municipio>GUATEMALA</dte:Municipio>
+            <dte:Departamento>GUATEMALA</dte:Departamento>
+            <dte:Pais>GT</dte:Pais>
+          </dte:DireccionEmisor>
+        </dte:Emisor>
+        <dte:Receptor CorreoReceptor="leyoalvizures4456@gmail.com" IDReceptor="2993930620101" NombreReceptor="Esvin Mayorga" TipoEspecial="CUI">
+          <dte:DireccionReceptor>
+            <dte:Direccion>CUIDAD</dte:Direccion>
+            <dte:CodigoPostal>01001</dte:CodigoPostal>
+            <dte:Municipio>GUATEMALA</dte:Municipio>
+            <dte:Departamento>GUATEMALA</dte:Departamento>
+            <dte:Pais>GT</dte:Pais>
+          </dte:DireccionReceptor>
+        </dte:Receptor>
+        <dte:Items>
+          <dte:Item BienOServicio="B" NumeroLinea="1">
+            <dte:Cantidad>1.00</dte:Cantidad>
+            <dte:UnidadMedida>UND</dte:UnidadMedida>
+            <dte:Descripcion>PRODUCTO1</dte:Descripcion>
+            <dte:PrecioUnitario>224.00</dte:PrecioUnitario>
+            <dte:Precio>224.00</dte:Precio>
+            <dte:Descuento>0.00</dte:Descuento>
+            <dte:Impuestos>
+              <dte:Impuesto>
+                <dte:NombreCorto>IVA</dte:NombreCorto>
+                <dte:CodigoUnidadGravable>1</dte:CodigoUnidadGravable>
+                <dte:MontoGravable>200.00</dte:MontoGravable>
+                <dte:MontoImpuesto>24.00</dte:MontoImpuesto>
+              </dte:Impuesto>
+            </dte:Impuestos>
+            <dte:Total>224.00</dte:Total>
+          </dte:Item>
+        </dte:Items>
+        <dte:Totales>
+          <dte:TotalImpuestos>
+            <dte:TotalImpuesto NombreCorto="IVA" TotalMontoImpuesto="24.00"></dte:TotalImpuesto>
+          </dte:TotalImpuestos>
+          <dte:GranTotal>224.00</dte:GranTotal>
+        </dte:Totales>
+        <dte:Complementos>
+          <dte:Complemento IDComplemento="Especial" NombreComplemento="Especial" URIComplemento="http://www.sat.gob.gt/fel/especial.xsd">
+            <cfe:RetencionesFacturaEspecial xmlns:cfe="http://www.sat.gob.gt/face2/ComplementoFacturaEspecial/0.1.0" Version="1" xsi:schemaLocation="http://www.sat.gob.gt/face2/ComplementoFacturaEspecial/0.1.0 C:\Users\User\Desktop\FEL\Esquemas\GT_Complemento_Fac_Especial-0.1.0.xsd">
+              <cfe:RetencionISR>10.00</cfe:RetencionISR>
+              <cfe:RetencionIVA>24.00</cfe:RetencionIVA>
+              <cfe:TotalMenosRetenciones>190.00</cfe:TotalMenosRetenciones>
+            </cfe:RetencionesFacturaEspecial>
+          </dte:Complemento>
+        </dte:Complementos>
+      </dte:DatosEmision>
+    </dte:DTE>
+  </dte:SAT>
+</dte:GTDocumento>

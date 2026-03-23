@@ -1,0 +1,118 @@
+<Window x:Class="EleFEL.App.Views.NitInputWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="EleFEL - Facturación"
+        Width="500" Height="420"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="NoResize"
+        Topmost="True"
+        Background="{StaticResource BackgroundBrush}"
+        Loaded="Window_Loaded"
+        KeyDown="Window_KeyDown">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Sale Info Header -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}"
+                CornerRadius="8" Padding="15" Margin="0,0,0,15">
+            <StackPanel>
+                <TextBlock Text="Nueva Venta Detectada"
+                           Foreground="White" FontSize="16" FontWeight="Bold" />
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                    <TextBlock x:Name="txtSaleInfo"
+                               Foreground="#DBEAFE" FontSize="13" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- NIT Input -->
+        <TextBlock Grid.Row="1" Text="NIT del Cliente:" FontSize="13"
+                   FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"
+                   Margin="0,0,0,5" />
+
+        <TextBox Grid.Row="2" x:Name="txtNit"
+                 Style="{StaticResource InputTextBox}"
+                 Margin="0,0,0,5"
+                 MaxLength="15"
+                 TextChanged="TxtNit_TextChanged" />
+
+        <!-- Customer Name (auto-filled or manual) -->
+        <TextBlock Grid.Row="3" Text="Nombre del Cliente:" FontSize="13"
+                   FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"
+                   Margin="0,5,0,5" />
+
+        <TextBox Grid.Row="4" x:Name="txtCustomerName"
+                 Style="{StaticResource InputTextBox}"
+                 Margin="0,0,0,5" />
+
+        <!-- Status Message -->
+        <TextBlock Grid.Row="5" x:Name="txtStatus"
+                   FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"
+                   Margin="0,0,0,10" />
+
+        <!-- Search Results -->
+        <ListBox Grid.Row="6" x:Name="lstCustomers"
+                 Visibility="Collapsed"
+                 SelectionChanged="LstCustomers_SelectionChanged"
+                 Margin="0,0,0,10"
+                 FontSize="13">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Nit}" FontWeight="Bold" Margin="0,0,10,0" />
+                        <TextBlock Text="{Binding Name}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Buttons Row 1 -->
+        <Grid Grid.Row="7">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Confirm Button -->
+            <Button Grid.Column="0" x:Name="btnConfirm"
+                    Content="Facturar (Enter)"
+                    Style="{StaticResource PrimaryButton}"
+                    Click="BtnConfirm_Click"
+                    IsEnabled="False" />
+
+            <!-- CF Button -->
+            <Button Grid.Column="2" Content="CF (F2)"
+                    Style="{StaticResource PrimaryButton}"
+                    Background="#6B7280"
+                    Click="BtnCF_Click" />
+
+            <!-- Postpone Button -->
+            <Button Grid.Column="4" Content="Después (F3)"
+                    Style="{StaticResource PrimaryButton}"
+                    Background="#F59E0B"
+                    Click="BtnPostpone_Click" />
+
+            <!-- Cancel Button -->
+            <Button Grid.Column="6" Content="Cancelar (Esc)"
+                    Style="{StaticResource PrimaryButton}"
+                    Background="{StaticResource ErrorBrush}"
+                    Click="BtnCancel_Click" />
+        </Grid>
+    </Grid>
+</Window>

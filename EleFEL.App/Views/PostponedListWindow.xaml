@@ -1,0 +1,65 @@
+<Window x:Class="EleFEL.App.Views.PostponedListWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="EleFEL - Ventas Pendientes de Facturar"
+        Width="700" Height="500"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResizeWithGrip"
+        Background="{StaticResource BackgroundBrush}"
+        Loaded="Window_Loaded">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}"
+                CornerRadius="8" Padding="15" Margin="0,0,0,10">
+            <StackPanel>
+                <TextBlock Text="Ventas Pendientes de Facturar"
+                           Foreground="White" FontSize="16" FontWeight="Bold" />
+                <TextBlock x:Name="txtInfo"
+                           Foreground="#DBEAFE" FontSize="12" Margin="0,3,0,0" />
+            </StackPanel>
+        </Border>
+
+        <!-- List -->
+        <DataGrid Grid.Row="1" x:Name="dgPostponed"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  CanUserAddRows="False"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="1"
+                  BorderBrush="#E5E7EB"
+                  Margin="0,0,0,10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="# Venta" Binding="{Binding EleventaSaleId}" Width="80" />
+                <DataGridTextColumn Header="Total (Q)" Binding="{Binding Total, StringFormat=N2}" Width="100" />
+                <DataGridTextColumn Header="Fecha" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy HH:mm}" Width="140" />
+                <DataGridTextColumn Header="Días restantes" Binding="{Binding DaysRemaining}" Width="110" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Facturar Ahora"
+                    Style="{StaticResource PrimaryButton}"
+                    Width="140" Margin="0,0,10,0"
+                    Click="BtnInvoiceNow_Click" />
+            <Button Content="Eliminar Seleccionada"
+                    Style="{StaticResource PrimaryButton}"
+                    Background="{StaticResource ErrorBrush}"
+                    Width="160" Margin="0,0,10,0"
+                    Click="BtnDelete_Click" />
+            <Button Content="Cerrar"
+                    Style="{StaticResource PrimaryButton}"
+                    Background="#6B7280"
+                    Width="100"
+                    Click="BtnClose_Click" />
+        </StackPanel>
+    </Grid>
+</Window>
