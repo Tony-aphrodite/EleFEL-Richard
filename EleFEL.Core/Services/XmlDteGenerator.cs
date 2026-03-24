@@ -1,3 +1,4 @@
+using System.Text;
 using System.Xml.Linq;
 using EleFEL.Core.Models;
 
@@ -33,9 +34,16 @@ public class XmlDteGenerator
             CreateGTDocumento(sale, customer, dteType, now)
         );
 
-        using var sw = new StringWriter();
-        doc.Save(sw);
-        return sw.ToString();
+        using var ms = new MemoryStream();
+        using (var xw = System.Xml.XmlWriter.Create(ms, new System.Xml.XmlWriterSettings
+        {
+            Encoding = new UTF8Encoding(false),
+            Indent = true
+        }))
+        {
+            doc.Save(xw);
+        }
+        return Encoding.UTF8.GetString(ms.ToArray());
     }
 
     private XElement CreateGTDocumento(EleventaSale sale, Customer customer, string dteType, DateTime now)
@@ -83,9 +91,13 @@ public class XmlDteGenerator
 
     private XElement CreateDatosGenerales(string dteType, DateTime now)
     {
+        // Guatemala timezone is always UTC-06:00 per SAT FEL requirements
+        var guatemalaTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(now, "Central America Standard Time");
+        var fechaEmision = guatemalaTime.ToString("yyyy-MM-ddTHH:mm:ss") + "-06:00";
+
         return new XElement(DteNs + "DatosGenerales",
             new XAttribute("CodigoMoneda", _emitter.CurrencyCode),
-            new XAttribute("FechaHoraEmision", now.ToString("yyyy-MM-ddTHH:mm:sszzz")),
+            new XAttribute("FechaHoraEmision", fechaEmision),
             new XAttribute("Tipo", dteType)
         );
     }
