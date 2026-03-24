@@ -9,11 +9,13 @@ public class InvoiceFileService
 {
     private readonly string _baseDirectory;
     private readonly LogService _log;
+    private readonly EmitterConfig? _emitter;
 
-    public InvoiceFileService(string invoiceDirectory, LogService log)
+    public InvoiceFileService(string invoiceDirectory, LogService log, EmitterConfig? emitter = null)
     {
         _baseDirectory = invoiceDirectory;
         _log = log;
+        _emitter = emitter;
         Directory.CreateDirectory(_baseDirectory);
     }
 
@@ -40,7 +42,7 @@ public class InvoiceFileService
         var fileName = $"DTE_{invoice.EleventaSaleId}_{invoice.Uuid ?? "pending"}.pdf";
         var filePath = Path.Combine(folder, fileName);
 
-        var pdfBytes = PdfGenerator.GenerateInvoicePdf(invoice, xmlContent);
+        var pdfBytes = PdfGenerator.GenerateInvoicePdf(invoice, xmlContent, _emitter);
         await File.WriteAllBytesAsync(filePath, pdfBytes);
         _log.LogInfo($"PDF saved: {filePath}");
         return filePath;

@@ -174,13 +174,12 @@ public partial class NitInputWindow : Window
             return;
         }
 
-        // Validate NIT check digit for non-CF
+        // Validate NIT check digit for non-CF (warning only, does not block)
         if (!nit.Equals("CF", StringComparison.OrdinalIgnoreCase) && !ValidateNitCheckDigit(nit))
         {
-            txtStatus.Text = "NIT invalido - digito verificador incorrecto";
-            txtStatus.Foreground = (System.Windows.Media.SolidColorBrush)FindResource("ErrorBrush");
-            txtNit.Focus();
-            return;
+            txtStatus.Text = "Advertencia: dígito verificador puede ser incorrecto";
+            txtStatus.Foreground = (System.Windows.Media.SolidColorBrush)FindResource("WarningBrush");
+            // Continue with invoicing - Infile will validate the NIT
         }
 
         var customer = _selectedCustomer ?? new Customer { Nit = nit, Name = name };

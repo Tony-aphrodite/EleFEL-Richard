@@ -35,7 +35,7 @@ public partial class App : Application
         var polling = new EleventaPollingService(config.Eleventa, _logService);
         var xmlGenerator = new XmlDteGenerator(config.Emitter);
         var certifier = new InfileCertifier(config.Infile, config.Emitter, _logService);
-        var fileService = new InvoiceFileService(invoiceDir, _logService);
+        var fileService = new InvoiceFileService(invoiceDir, _logService, config.Emitter);
         var queue = new InvoiceQueueService(db, certifier, fileService, _logService, config.System.MaxRetryAttempts);
         var printer = new ThermalPrinterService(config.Printer, _logService);
 

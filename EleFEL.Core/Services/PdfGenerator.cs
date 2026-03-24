@@ -16,7 +16,7 @@ public static class PdfGenerator
         QuestPDF.Settings.License = LicenseType.Community;
     }
 
-    public static byte[] GenerateInvoicePdf(Invoice invoice, string xmlContent)
+    public static byte[] GenerateInvoicePdf(Invoice invoice, string xmlContent, EmitterConfig? emitter = null)
     {
         var items = ParseItemsFromXml(xmlContent);
 
@@ -28,7 +28,7 @@ public static class PdfGenerator
                 page.Margin(30);
                 page.DefaultTextStyle(x => x.FontSize(9));
 
-                page.Header().Element(c => ComposeHeader(c, invoice));
+                page.Header().Element(c => ComposeHeader(c, invoice, emitter));
                 page.Content().Element(c => ComposeContent(c, invoice, items));
                 page.Footer().Element(c => ComposeFooter(c, invoice));
             });
@@ -37,29 +37,45 @@ public static class PdfGenerator
         return document.GeneratePdf();
     }
 
-    private static void ComposeHeader(IContainer container, Invoice invoice)
+    private static void ComposeHeader(IContainer container, Invoice invoice, EmitterConfig? emitter)
     {
         container.Column(col =>
         {
-            col.Item().Text("DOCUMENTO TRIBUTARIO ELECTRONICO").Bold().FontSize(12).AlignCenter();
-            col.Item().Text("FACTURA ELECTRONICA - FEL").FontSize(10).AlignCenter();
+            // Title
+            col.Item().Text("DOCUMENTO TRIBUTARIO ELECTRONICO").Bold().FontSize(14).AlignCenter();
+            col.Item().Text("FACTURA ELECTRONICA - FEL").FontSize(11).AlignCenter();
+            col.Item().PaddingTop(5).LineHorizontal(2);
+
+            // Emitter info
+            if (emitter != null)
+            {
+                col.Item().PaddingTop(8).Text("EMISOR:").Bold().FontSize(10);
+                col.Item().Text($"{emitter.CommercialName}").Bold().FontSize(11);
+                col.Item().Text($"NIT: {emitter.Nit}");
+                col.Item().Text($"Nombre: {emitter.Name}");
+                col.Item().Text($"Dirección: {emitter.Address}");
+                col.Item().Text($"{emitter.Municipality}, {emitter.Department}, {emitter.Country}");
+            }
             col.Item().PaddingTop(5).LineHorizontal(1);
+
+            // Authorization info
             col.Item().PaddingTop(5).Row(row =>
             {
                 row.RelativeItem().Column(c =>
                 {
-                    c.Item().Text($"No. Autorización (UUID):").Bold();
+                    c.Item().Text("No. Autorización (UUID):").Bold();
                     c.Item().Text(invoice.Uuid ?? "Pendiente");
                     c.Item().Text($"Serie: {invoice.SerialNumber ?? "-"}  Número: {invoice.DteNumber ?? "-"}");
                 });
                 row.RelativeItem().Column(c =>
                 {
-                    c.Item().Text($"Fecha de Certificación:").Bold().AlignRight();
+                    c.Item().Text("Fecha de Certificación:").Bold().AlignRight();
                     c.Item().Text(invoice.CertificationDate?.ToString("dd/MM/yyyy HH:mm:ss") ?? "-").AlignRight();
                 });
             });
             col.Item().PaddingTop(5).LineHorizontal(1);
 
+            // Receptor info
             col.Item().PaddingTop(5).Row(row =>
             {
                 row.RelativeItem().Column(c =>
