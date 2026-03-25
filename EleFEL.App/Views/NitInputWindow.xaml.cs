@@ -260,10 +260,14 @@ public partial class NitInputWindow : Window
         }
     }
 
-    private void BtnCancel_Click(object sender, RoutedEventArgs e)
+    private async void BtnCancel_Click(object sender, RoutedEventArgs e)
     {
-        // Don't set _actionTaken here - let the Closing event handle the postpone
-        // This avoids fire-and-forget race condition and duplicate calls
+        _actionTaken = true;
+        try
+        {
+            await _engine.PostponeSaleAsync(_sale);
+        }
+        catch { }
         Close();
     }
 

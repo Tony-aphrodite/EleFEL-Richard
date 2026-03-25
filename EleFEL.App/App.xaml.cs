@@ -187,16 +187,23 @@ public partial class App : Application
 
     private void ShowNitWindow(EleventaSale sale)
     {
+        // Set flag BEFORE BeginInvoke to prevent race condition
+        // where polling fires multiple events before UI thread processes the first
         if (_nitWindowOpen) return;
+        _nitWindowOpen = true;
 
         Dispatcher.BeginInvoke(() =>
         {
-            if (_nitWindowOpen) return;
-            _nitWindowOpen = true;
-
-            var window = new Views.NitInputWindow(sale, _engine!);
-            window.Closed += (_, _) => _nitWindowOpen = false;
-            window.ShowDialog();
+            try
+            {
+                var window = new Views.NitInputWindow(sale, _engine!);
+                window.Closed += (_, _) => _nitWindowOpen = false;
+                window.ShowDialog();
+            }
+            catch
+            {
+                _nitWindowOpen = false;
+            }
         });
     }
 

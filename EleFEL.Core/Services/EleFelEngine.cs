@@ -290,6 +290,14 @@ public class EleFelEngine : IDisposable
                 var lastSaleId = await _db.GetLastProcessedSaleIdAsync().ConfigureAwait(false);
                 var newSales = await _polling.GetNewSalesAsync(lastSaleId, _engineStartTime).ConfigureAwait(false);
 
+                // Recover from Error state if polling succeeds
+                if (Status == EngineStatus.Error)
+                {
+                    Status = EngineStatus.Running;
+                    OnStatusChanged?.Invoke(Status);
+                    _log.LogInfo("Engine recovered from error state");
+                }
+
                 foreach (var sale in newSales)
                 {
                     // Check if sale was already processed (avoid duplicates)
@@ -303,8 +311,11 @@ public class EleFelEngine : IDisposable
             catch (Exception ex)
             {
                 _log.LogError("Error in polling loop", ex);
-                Status = EngineStatus.Error;
-                OnStatusChanged?.Invoke(Status);
+                if (Status != EngineStatus.Error)
+                {
+                    Status = EngineStatus.Error;
+                    OnStatusChanged?.Invoke(Status);
+                }
             }
 
             try

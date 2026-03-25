@@ -12,12 +12,27 @@ public class LocalDatabaseService : IDisposable
 {
     private readonly string _connectionString;
     private SqliteConnection? _connection;
+    private readonly SemaphoreSlim _dbLock = new(1, 1);
 
     public LocalDatabaseService(string dataDirectory)
     {
         Directory.CreateDirectory(dataDirectory);
         var dbPath = Path.Combine(dataDirectory, "EleFEL.db");
         _connectionString = $"Data Source={dbPath}";
+    }
+
+    private async Task<T> WithLockAsync<T>(Func<Task<T>> action)
+    {
+        await _dbLock.WaitAsync();
+        try { return await action(); }
+        finally { _dbLock.Release(); }
+    }
+
+    private async Task WithLockAsync(Func<Task> action)
+    {
+        await _dbLock.WaitAsync();
+        try { await action(); }
+        finally { _dbLock.Release(); }
     }
 
     public async Task InitializeAsync()
@@ -75,13 +90,13 @@ public class LocalDatabaseService : IDisposable
 
     // ─── Customer Operations ──────────────────────────────────────
 
-    public async Task<Customer?> GetCustomerByNitAsync(string nit)
+    public Task<Customer?> GetCustomerByNitAsync(string nit) => WithLockAsync(async () =>
     {
         const string sql = "SELECT * FROM Customers WHERE Nit = @Nit";
         return await _connection!.QueryFirstOrDefaultAsync<Customer>(sql, new { Nit = nit });
-    }
+    });
 
-    public async Task<List<Customer>> SearchCustomersAsync(string searchTerm)
+    public Task<List<Customer>> SearchCustomersAsync(string searchTerm) => WithLockAsync(async () =>
     {
         const string sql = """
             SELECT * FROM Customers
@@ -91,9 +106,9 @@ public class LocalDatabaseService : IDisposable
             """;
         var results = await _connection!.QueryAsync<Customer>(sql, new { Term = $"%{searchTerm}%" });
         return results.ToList();
-    }
+    });
 
-    public async Task SaveCustomerAsync(Customer customer)
+    public Task SaveCustomerAsync(Customer customer) => WithLockAsync(async () =>
     {
         const string sql = """
             INSERT INTO Customers (Nit, Name, Address, CreatedAt, LastUsedAt)
@@ -103,18 +118,18 @@ public class LocalDatabaseService : IDisposable
                 LastUsedAt = datetime('now','localtime')
             """;
         await _connection!.ExecuteAsync(sql, customer);
-    }
+    });
 
     // ─── Invoice Operations ───────────────────────────────────────
 
-    public async Task<bool> IsSaleAlreadyProcessedAsync(long eleventaSaleId)
+    public Task<bool> IsSaleAlreadyProcessedAsync(long eleventaSaleId) => WithLockAsync(async () =>
     {
         const string sql = "SELECT COUNT(1) FROM Invoices WHERE EleventaSaleId = @SaleId";
         var count = await _connection!.ExecuteScalarAsync<int>(sql, new { SaleId = eleventaSaleId });
         return count > 0;
-    }
+    });
 
-    public async Task<int> SaveInvoiceAsync(Invoice invoice)
+    public Task<int> SaveInvoiceAsync(Invoice invoice) => WithLockAsync(async () =>
     {
         const string sql = """
             INSERT INTO Invoices (EleventaSaleId, CustomerNit, CustomerName, Total, Status,
@@ -128,9 +143,9 @@ public class LocalDatabaseService : IDisposable
         var id = await _connection!.ExecuteScalarAsync<int>(sql, invoice);
         invoice.Id = id;
         return id;
-    }
+    });
 
-    public async Task UpdateInvoiceAsync(Invoice invoice)
+    public Task UpdateInvoiceAsync(Invoice invoice) => WithLockAsync(async () =>
     {
         const string sql = """
             UPDATE Invoices SET
@@ -149,9 +164,9 @@ public class LocalDatabaseService : IDisposable
             WHERE Id = @Id
             """;
         await _connection!.ExecuteAsync(sql, invoice);
-    }
+    });
 
-    public async Task<List<Invoice>> GetPendingInvoicesAsync()
+    public Task<List<Invoice>> GetPendingInvoicesAsync() => WithLockAsync(async () =>
     {
         const string sql = """
             SELECT * FROM Invoices
@@ -166,54 +181,45 @@ public class LocalDatabaseService : IDisposable
             MaxRetry = 10
         });
         return results.ToList();
-    }
+    });
 
-    public async Task<int> GetPendingCountAsync()
+    public Task<int> GetPendingCountAsync() => WithLockAsync(async () =>
     {
         const string sql = "SELECT COUNT(1) FROM Invoices WHERE Status IN (0, 3) AND RetryCount < 10";
         return await _connection!.ExecuteScalarAsync<int>(sql);
-    }
+    });
 
-    public async Task<long> GetLastProcessedSaleIdAsync()
+    public Task<long> GetLastProcessedSaleIdAsync() => WithLockAsync(async () =>
     {
-        // First check invoices table
         const string invoiceSql = "SELECT COALESCE(MAX(EleventaSaleId), 0) FROM Invoices WHERE Status != 5";
         var fromInvoices = await _connection!.ExecuteScalarAsync<long>(invoiceSql);
 
-        // Also check the baseline (set on first run to skip historical sales)
         const string baselineSql = "SELECT COALESCE(Value, '0') FROM Settings WHERE Key = 'BaselineSaleId'";
         var baselineStr = await _connection!.ExecuteScalarAsync<string>(baselineSql) ?? "0";
         long.TryParse(baselineStr, out var baseline);
 
-        // Return whichever is higher
         return Math.Max(fromInvoices, baseline);
-    }
+    });
 
-    /// <summary>
-    /// Sets the baseline sale ID so that historical sales are skipped on first run
-    /// </summary>
-    public async Task SetBaselineSaleIdAsync(long saleId)
+    public Task SetBaselineSaleIdAsync(long saleId) => WithLockAsync(async () =>
     {
         const string sql = """
             INSERT INTO Settings (Key, Value) VALUES ('BaselineSaleId', @Value)
             ON CONFLICT(Key) DO UPDATE SET Value = excluded.Value
             """;
         await _connection!.ExecuteAsync(sql, new { Value = saleId.ToString() });
-    }
+    });
 
-    /// <summary>
-    /// Checks if the baseline has already been set (i.e., not the first run)
-    /// </summary>
-    public async Task<bool> HasBaselineSaleIdAsync()
+    public Task<bool> HasBaselineSaleIdAsync() => WithLockAsync(async () =>
     {
         const string sql = "SELECT COUNT(1) FROM Settings WHERE Key = 'BaselineSaleId'";
         var count = await _connection!.ExecuteScalarAsync<int>(sql);
         return count > 0;
-    }
+    });
 
     // ─── Postponed Operations ────────────────────────────────────
 
-    public async Task<List<Invoice>> GetPostponedInvoicesAsync()
+    public Task<List<Invoice>> GetPostponedInvoicesAsync() => WithLockAsync(async () =>
     {
         const string sql = """
             SELECT * FROM Invoices
@@ -225,21 +231,21 @@ public class LocalDatabaseService : IDisposable
             Postponed = (int)InvoiceStatus.Postponed
         });
         return results.ToList();
-    }
+    });
 
-    public async Task<int> GetPostponedCountAsync()
+    public Task<int> GetPostponedCountAsync() => WithLockAsync(async () =>
     {
         const string sql = "SELECT COUNT(1) FROM Invoices WHERE Status = 5";
         return await _connection!.ExecuteScalarAsync<int>(sql);
-    }
+    });
 
-    public async Task DeletePostponedInvoiceAsync(int invoiceId)
+    public Task DeletePostponedInvoiceAsync(int invoiceId) => WithLockAsync(async () =>
     {
         const string sql = "DELETE FROM Invoices WHERE Id = @Id AND Status = 5";
         await _connection!.ExecuteAsync(sql, new { Id = invoiceId });
-    }
+    });
 
-    public async Task<int> DeleteExpiredPostponedAsync(int expirationDays)
+    public Task<int> DeleteExpiredPostponedAsync(int expirationDays) => WithLockAsync(async () =>
     {
         const string sql = """
             DELETE FROM Invoices
@@ -247,9 +253,9 @@ public class LocalDatabaseService : IDisposable
             AND CreatedAt < datetime('now', 'localtime', @Days)
             """;
         return await _connection!.ExecuteAsync(sql, new { Days = $"-{expirationDays} days" });
-    }
+    });
 
-    public async Task UpdateInvoiceStatusAsync(int invoiceId, InvoiceStatus status)
+    public Task UpdateInvoiceStatusAsync(int invoiceId, InvoiceStatus status) => WithLockAsync(async () =>
     {
         const string sql = """
             UPDATE Invoices SET
@@ -258,7 +264,7 @@ public class LocalDatabaseService : IDisposable
             WHERE Id = @Id
             """;
         await _connection!.ExecuteAsync(sql, new { Id = invoiceId, Status = (int)status });
-    }
+    });
 
     public void Dispose()
     {
