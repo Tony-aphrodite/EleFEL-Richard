@@ -1,11 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "1yBYS21ivIG8Tm8bJJxZACzGMD5k9Ne5WDDliHlLbxNo7SniOL9lLETwcRutkSdQUMDMH+Kta++y9hxFaQWQNA==",
+  "dgSpecHash": "UQ/1SWaIUoPGHL5ddkx/qIaMSAyQu6tRv8F10Cmfv0j9knGaD2BE493B3WXfhoQof7kbRJ572fjjc8y2wRz/MQ==",
   "success": true,
-  "projectFilePath": "/home/houseph/Project/BId/EleFEL/EleFEL.App/EleFEL.App.csproj",
+  "projectFilePath": "/home/houseph/Project/Elefel/EleFEL/EleFEL.App/EleFEL.App.csproj",
   "expectedPackageFiles": [
     "/home/houseph/.nuget/packages/dapper/2.1.35/dapper.2.1.35.nupkg.sha512",
-    "/home/houseph/.nuget/packages/firebird.embedded/3.0.0.32485/firebird.embedded.3.0.0.32485.nupkg.sha512",
     "/home/houseph/.nuget/packages/firebirdsql.data.firebirdclient/10.3.1/firebirdsql.data.firebirdclient.10.3.1.nupkg.sha512",
     "/home/houseph/.nuget/packages/microsoft.data.sqlite/8.0.10/microsoft.data.sqlite.8.0.10.nupkg.sha512",
     "/home/houseph/.nuget/packages/microsoft.data.sqlite.core/8.0.10/microsoft.data.sqlite.core.8.0.10.nupkg.sha512",

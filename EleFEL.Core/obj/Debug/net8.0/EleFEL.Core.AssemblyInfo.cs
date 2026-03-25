@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EleFEL.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aba325573779b0b8de22ad331407054a6d061e1a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2818a30ef871f81cad63246e11cd22c43b96eb37")]
 [assembly: System.Reflection.AssemblyProductAttribute("EleFEL.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EleFEL.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

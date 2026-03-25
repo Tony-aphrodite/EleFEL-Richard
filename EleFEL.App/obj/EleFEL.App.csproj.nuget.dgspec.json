@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/houseph/Project/BId/EleFEL/EleFEL.App/EleFEL.App.csproj": {}
+    "/home/houseph/Project/Elefel/EleFEL/EleFEL.App/EleFEL.App.csproj": {}
   },
   "projects": {
-    "/home/houseph/Project/BId/EleFEL/EleFEL.App/EleFEL.App.csproj": {
+    "/home/houseph/Project/Elefel/EleFEL/EleFEL.App/EleFEL.App.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/houseph/Project/BId/EleFEL/EleFEL.App/EleFEL.App.csproj",
+        "projectUniqueName": "/home/houseph/Project/Elefel/EleFEL/EleFEL.App/EleFEL.App.csproj",
         "projectName": "EleFEL.App",
-        "projectPath": "/home/houseph/Project/BId/EleFEL/EleFEL.App/EleFEL.App.csproj",
+        "projectPath": "/home/houseph/Project/Elefel/EleFEL/EleFEL.App/EleFEL.App.csproj",
         "packagesPath": "/home/houseph/.nuget/packages/",
-        "outputPath": "/home/houseph/Project/BId/EleFEL/EleFEL.App/obj/",
+        "outputPath": "/home/houseph/Project/Elefel/EleFEL/EleFEL.App/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/houseph/.nuget/NuGet/NuGet.Config"
@@ -26,8 +26,8 @@
           "net8.0-windows7.0": {
             "targetAlias": "net8.0-windows",
             "projectReferences": {
-              "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj": {
-                "projectPath": "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj"
+              "/home/houseph/Project/Elefel/EleFEL/EleFEL.Core/EleFEL.Core.csproj": {
+                "projectPath": "/home/houseph/Project/Elefel/EleFEL/EleFEL.Core/EleFEL.Core.csproj"
               }
             }
           }
@@ -42,10 +42,6 @@
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows",
           "dependencies": {
-            "Firebird.Embedded": {
-              "target": "Package",
-              "version": "[3.0.0.32485, )"
-            },
             "Microsoft.Extensions.Hosting": {
               "target": "Package",
               "version": "[8.0.1, )"
@@ -75,14 +71,14 @@
         }
       }
     },
-    "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj": {
+    "/home/houseph/Project/Elefel/EleFEL/EleFEL.Core/EleFEL.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj",
+        "projectUniqueName": "/home/houseph/Project/Elefel/EleFEL/EleFEL.Core/EleFEL.Core.csproj",
         "projectName": "EleFEL.Core",
-        "projectPath": "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj",
+        "projectPath": "/home/houseph/Project/Elefel/EleFEL/EleFEL.Core/EleFEL.Core.csproj",
         "packagesPath": "/home/houseph/.nuget/packages/",
-        "outputPath": "/home/houseph/Project/BId/EleFEL/EleFEL.Core/obj/",
+        "outputPath": "/home/houseph/Project/Elefel/EleFEL/EleFEL.Core/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/houseph/.nuget/NuGet/NuGet.Config"

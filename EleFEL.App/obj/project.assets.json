@@ -15,15 +15,6 @@
           }
         }
       },
-      "Firebird.Embedded/3.0.0.32485": {
-        "type": "package",
-        "dependencies": {
-          "FirebirdSql.Data.FirebirdClient": "5.0.0"
-        },
-        "build": {
-          "build/Firebird.Embedded.targets": {}
-        }
-      },
       "FirebirdSql.Data.FirebirdClient/10.3.1": {
         "type": "package",
         "compile": {
@@ -936,53 +927,6 @@
         "lib/netstandard2.0/Dapper.dll",
         "lib/netstandard2.0/Dapper.xml",
         "readme.md"
-      ]
-    },
-    "Firebird.Embedded/3.0.0.32485": {
-      "sha512": "ihEHQJWy21wYAxG12ZUxqOTM1isUsKuPds7TKi5+p7IkRiEOQEmdqjUJ1Qts8/0hTxUkpbulHQbVOEFr8NA+rQ==",
-      "type": "package",
-      "path": "firebird.embedded/3.0.0.32485",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "build/Firebird.Embedded.targets",
-        "build/x64/fbclient.dll",
-        "build/x64/fbembed.dll",
-        "build/x64/ib_util.dll",
-        "build/x64/icudt52.dll",
-        "build/x64/icudt52l.dat",
-        "build/x64/icuin52.dll",
-        "build/x64/icuuc52.dll",
-        "build/x64/intl/fbintl.conf",
-        "build/x64/intl/fbintl.dll",
-        "build/x64/plugins.conf",
-        "build/x64/plugins/engine12.dll",
-        "build/x64/plugins/fbtrace.dll",
-        "build/x64/plugins/legacy_auth.dll",
-        "build/x64/plugins/legacy_usermanager.dll",
-        "build/x64/plugins/srp.dll",
-        "build/x64/plugins/udr_engine.conf",
-        "build/x64/plugins/udr_engine.dll",
-        "build/x86/fbclient.dll",
-        "build/x86/fbembed.dll",
-        "build/x86/ib_util.dll",
-        "build/x86/icudt52.dll",
-        "build/x86/icudt52l.dat",
-        "build/x86/icuin52.dll",
-        "build/x86/icuuc52.dll",
-        "build/x86/intl/fbintl.conf",
-        "build/x86/intl/fbintl.dll",
-        "build/x86/plugins.conf",
-        "build/x86/plugins/engine12.dll",
-        "build/x86/plugins/fbtrace.dll",
-        "build/x86/plugins/legacy_auth.dll",
-        "build/x86/plugins/legacy_usermanager.dll",
-        "build/x86/plugins/srp.dll",
-        "build/x86/plugins/udr_engine.conf",
-        "build/x86/plugins/udr_engine.dll",
-        "firebird.embedded.3.0.0.32485.nupkg.sha512",
-        "firebird.embedded.nuspec",
-        "lib/dotnet/_._"
       ]
     },
     "FirebirdSql.Data.FirebirdClient/10.3.1": {
@@ -2279,7 +2223,6 @@
   "projectFileDependencyGroups": {
     "net8.0-windows7.0": [
       "EleFEL.Core >= 1.0.0",
-      "Firebird.Embedded >= 3.0.0.32485",
       "Microsoft.Extensions.Hosting >= 8.0.1",
       "Microsoft.Extensions.Logging >= 8.0.1"
     ]
@@ -2290,11 +2233,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/houseph/Project/BId/EleFEL/EleFEL.App/EleFEL.App.csproj",
+      "projectUniqueName": "/home/houseph/Project/Elefel/EleFEL/EleFEL.App/EleFEL.App.csproj",
       "projectName": "EleFEL.App",
-      "projectPath": "/home/houseph/Project/BId/EleFEL/EleFEL.App/EleFEL.App.csproj",
+      "projectPath": "/home/houseph/Project/Elefel/EleFEL/EleFEL.App/EleFEL.App.csproj",
       "packagesPath": "/home/houseph/.nuget/packages/",
-      "outputPath": "/home/houseph/Project/BId/EleFEL/EleFEL.App/obj/",
+      "outputPath": "/home/houseph/Project/Elefel/EleFEL/EleFEL.App/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/houseph/.nuget/NuGet/NuGet.Config"
@@ -2309,8 +2252,8 @@
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows",
           "projectReferences": {
-            "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj": {
-              "projectPath": "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj"
+            "/home/houseph/Project/Elefel/EleFEL/EleFEL.Core/EleFEL.Core.csproj": {
+              "projectPath": "/home/houseph/Project/Elefel/EleFEL/EleFEL.Core/EleFEL.Core.csproj"
             }
           }
         }
@@ -2325,10 +2268,6 @@
       "net8.0-windows7.0": {
         "targetAlias": "net8.0-windows",
         "dependencies": {
-          "Firebird.Embedded": {
-            "target": "Package",
-            "version": "[3.0.0.32485, )"
-          },
           "Microsoft.Extensions.Hosting": {
             "target": "Package",
             "version": "[8.0.1, )"

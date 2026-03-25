@@ -822,11 +822,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj",
+      "projectUniqueName": "/home/houseph/Project/Elefel/EleFEL/EleFEL.Core/EleFEL.Core.csproj",
       "projectName": "EleFEL.Core",
-      "projectPath": "/home/houseph/Project/BId/EleFEL/EleFEL.Core/EleFEL.Core.csproj",
+      "projectPath": "/home/houseph/Project/Elefel/EleFEL/EleFEL.Core/EleFEL.Core.csproj",
       "packagesPath": "/home/houseph/.nuget/packages/",
-      "outputPath": "/home/houseph/Project/BId/EleFEL/EleFEL.Core/obj/",
+      "outputPath": "/home/houseph/Project/Elefel/EleFEL/EleFEL.Core/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/houseph/.nuget/NuGet/NuGet.Config"
