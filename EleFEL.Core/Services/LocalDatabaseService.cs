@@ -21,16 +21,20 @@ public class LocalDatabaseService : IDisposable
         _connectionString = $"Data Source={dbPath}";
     }
 
+    private static readonly TimeSpan LockTimeout = TimeSpan.FromSeconds(10);
+
     private async Task<T> WithLockAsync<T>(Func<Task<T>> action)
     {
-        await _dbLock.WaitAsync();
+        if (!await _dbLock.WaitAsync(LockTimeout))
+            throw new TimeoutException("Database lock timeout");
         try { return await action(); }
         finally { _dbLock.Release(); }
     }
 
     private async Task WithLockAsync(Func<Task> action)
     {
-        await _dbLock.WaitAsync();
+        if (!await _dbLock.WaitAsync(LockTimeout))
+            throw new TimeoutException("Database lock timeout");
         try { await action(); }
         finally { _dbLock.Release(); }
     }

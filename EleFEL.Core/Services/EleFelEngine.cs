@@ -181,7 +181,16 @@ public class EleFelEngine : IDisposable
                 XmlContent = xml
             };
 
-            await _db.SaveInvoiceAsync(invoice);
+            try
+            {
+                await _db.SaveInvoiceAsync(invoice);
+            }
+            catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
+            {
+                // UNIQUE constraint violation - sale was already processed by another thread
+                _log.LogWarning($"Sale {sale.SaleId} already processed (constraint), skipping");
+                return;
+            }
             _log.LogInfo($"Invoice created for SaleID={sale.SaleId}, NIT={customer.Nit}");
 
             // Try to certify immediately

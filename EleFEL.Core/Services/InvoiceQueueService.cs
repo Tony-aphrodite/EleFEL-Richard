@@ -70,6 +70,9 @@ public class InvoiceQueueService
         }
 
         invoice.Status = InvoiceStatus.Sending;
+        await _db.UpdateInvoiceAsync(invoice);
+
+        // Increment retry count AFTER status update succeeds
         invoice.RetryCount++;
         await _db.UpdateInvoiceAsync(invoice);
 

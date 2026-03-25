@@ -41,6 +41,23 @@ public class InfileCertifier : IFelCertifier, IDisposable
     /// </summary>
     public async Task<CertificationResult> CertifyAsync(string xmlContent)
     {
+        // Demo mode: return mock certification result without calling Infile API
+        if (_config.UseSandbox)
+        {
+            _log.LogInfo("DEMO MODE: Generating mock certification (no API call)");
+            var demoUuid = $"DEMO-{Guid.NewGuid():N}"[..36].ToUpperInvariant();
+            return new CertificationResult
+            {
+                Success = true,
+                Uuid = demoUuid,
+                AuthorizationNumber = $"DEMO-{DateTime.Now:yyyyMMddHHmmss}",
+                SerialNumber = "DEMO-SERIE",
+                DteNumber = $"{++_identifierCounter}",
+                CertificationDate = DateTime.Now,
+                CertifiedXml = xmlContent
+            };
+        }
+
         try
         {
             // Step 1: Sign the XML (public endpoint, no auth)

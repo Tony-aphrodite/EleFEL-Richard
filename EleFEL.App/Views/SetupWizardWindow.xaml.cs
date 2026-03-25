@@ -167,7 +167,7 @@ public partial class SetupWizardWindow : Window
                 EmitterCode = txtEmitterCode.Text.Trim(),
                 SigningAlias = txtEmitterCode.Text.Trim(),
                 CopyEmail = txtCopyEmail.Text.Trim(),
-                UseSandbox = false
+                UseSandbox = true
             },
             Emitter = new EmitterConfig
             {
