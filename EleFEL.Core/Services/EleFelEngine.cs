@@ -280,16 +280,23 @@ public class EleFelEngine : IDisposable
     /// </summary>
     private async Task RunPollingLoopAsync(CancellationToken ct)
     {
+        // Ensure polling runs on thread pool, not UI thread
+        await Task.Yield();
+
         while (!ct.IsCancellationRequested)
         {
             try
             {
-                var lastSaleId = await _db.GetLastProcessedSaleIdAsync();
-                var newSales = await _polling.GetNewSalesAsync(lastSaleId, _engineStartTime);
+                var lastSaleId = await _db.GetLastProcessedSaleIdAsync().ConfigureAwait(false);
+                var newSales = await _polling.GetNewSalesAsync(lastSaleId, _engineStartTime).ConfigureAwait(false);
 
                 foreach (var sale in newSales)
                 {
-                    // Notify UI to show NIT input window
+                    // Check if sale was already processed (avoid duplicates)
+                    if (await _db.IsSaleAlreadyProcessedAsync(sale.SaleId).ConfigureAwait(false))
+                        continue;
+
+                    _log.LogInfo($"New sale detected: SaleID={sale.SaleId}, Total={sale.Total}");
                     OnNewSaleRequiresNit?.Invoke(sale);
                 }
             }
@@ -304,7 +311,7 @@ public class EleFelEngine : IDisposable
             {
                 await Task.Delay(
                     TimeSpan.FromSeconds(_config.Eleventa.PollingIntervalSeconds),
-                    ct);
+                    ct).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -318,11 +325,13 @@ public class EleFelEngine : IDisposable
     /// </summary>
     private async Task RunQueueLoopAsync(CancellationToken ct)
     {
+        await Task.Yield();
+
         while (!ct.IsCancellationRequested)
         {
             try
             {
-                await _queue.ProcessPendingAsync();
+                await _queue.ProcessPendingAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -333,7 +342,7 @@ public class EleFelEngine : IDisposable
             {
                 await Task.Delay(
                     TimeSpan.FromSeconds(_config.System.QueueRetryIntervalSeconds),
-                    ct);
+                    ct).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {

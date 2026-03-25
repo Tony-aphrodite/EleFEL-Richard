@@ -13,6 +13,7 @@ public partial class App : Application
     private EleFelEngine? _engine;
     private ConfigService? _configService;
     private LogService? _logService;
+    private bool _nitWindowOpen;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -186,9 +187,15 @@ public partial class App : Application
 
     private void ShowNitWindow(EleventaSale sale)
     {
-        Dispatcher.Invoke(() =>
+        if (_nitWindowOpen) return;
+
+        Dispatcher.BeginInvoke(() =>
         {
+            if (_nitWindowOpen) return;
+            _nitWindowOpen = true;
+
             var window = new Views.NitInputWindow(sale, _engine!);
+            window.Closed += (_, _) => _nitWindowOpen = false;
             window.ShowDialog();
         });
     }
