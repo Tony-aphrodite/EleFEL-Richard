@@ -20,7 +20,30 @@ public partial class App : Application
 
         // Load configuration
         _configService = new ConfigService();
+        var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+        var needsSetup = !File.Exists(configPath);
+
         var config = _configService.Load();
+
+        // Check if config exists but emitter is not configured
+        if (!needsSetup && string.IsNullOrWhiteSpace(config.Emitter.Nit))
+            needsSetup = true;
+
+        // Show setup wizard if needed
+        if (needsSetup)
+        {
+            var wizard = new Views.SetupWizardWindow(configPath, needsSetup ? null : config);
+            wizard.ShowDialog();
+
+            if (!wizard.ConfigSaved)
+            {
+                Shutdown();
+                return;
+            }
+
+            // Reload config after wizard saved it
+            config = _configService.Load();
+        }
 
         // Initialize logging
         var logDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.System.LogDirectory);
@@ -97,6 +120,8 @@ public partial class App : Application
         menu.Items.Add("Abrir Carpeta de Facturas", null, (_, _) => OpenInvoicesFolder());
         menu.Items.Add("Abrir Carpeta de Logs", null, (_, _) => OpenLogsFolder());
         menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
+        menu.Items.Add("Configuración", null, (_, _) => ShowSetupWizard());
+        menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
         menu.Items.Add("Salir", null, (_, _) => ExitApplication());
 
         _trayIcon.ContextMenuStrip = menu;
@@ -165,6 +190,25 @@ public partial class App : Application
         {
             var window = new Views.NitInputWindow(sale, _engine!);
             window.ShowDialog();
+        });
+    }
+
+    private void ShowSetupWizard()
+    {
+        Dispatcher.Invoke(() =>
+        {
+            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+            var wizard = new Views.SetupWizardWindow(configPath, _configService?.Config);
+            wizard.ShowDialog();
+
+            if (wizard.ConfigSaved)
+            {
+                MessageBox.Show(
+                    "La configuración se ha actualizado.\nReinicie EleFEL para aplicar los cambios.",
+                    "EleFEL",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
         });
     }
 

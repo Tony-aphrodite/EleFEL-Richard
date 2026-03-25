@@ -1,0 +1,171 @@
+<Window x:Class="EleFEL.App.Views.SetupWizardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="EleFEL - Configuración Inicial"
+        Width="650" Height="700"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="NoResize"
+        Background="{StaticResource BackgroundBrush}">
+
+    <Grid Margin="25">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}"
+                CornerRadius="8" Padding="20" Margin="0,0,0,20">
+            <StackPanel>
+                <TextBlock Text="Bienvenido a EleFEL"
+                           Foreground="White" FontSize="22" FontWeight="Bold" />
+                <TextBlock Text="Configure los datos de su negocio para comenzar a facturar."
+                           Foreground="#DBEAFE" FontSize="13" Margin="0,5,0,0" />
+            </StackPanel>
+        </Border>
+
+        <!-- Scrollable Form -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,15">
+            <StackPanel>
+
+                <!-- Section: Emitter -->
+                <TextBlock Text="DATOS DEL EMISOR" FontSize="13" FontWeight="Bold"
+                           Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,10" />
+
+                <TextBlock Text="NIT del Emisor:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                <TextBox x:Name="txtEmitterNit" Style="{StaticResource InputTextBox}" FontSize="14" Margin="0,0,0,8" />
+
+                <TextBlock Text="Nombre Legal:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                <TextBox x:Name="txtEmitterName" Style="{StaticResource InputTextBox}" FontSize="14" Margin="0,0,0,8" />
+
+                <TextBlock Text="Nombre Comercial:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                <TextBox x:Name="txtCommercialName" Style="{StaticResource InputTextBox}" FontSize="14" Margin="0,0,0,8" />
+
+                <TextBlock Text="Dirección:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                <TextBox x:Name="txtAddress" Style="{StaticResource InputTextBox}" FontSize="14" Margin="0,0,0,8" />
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="80" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Municipio:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                        <TextBox x:Name="txtMunicipality" Style="{StaticResource InputTextBox}" FontSize="14" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Departamento:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                        <TextBox x:Name="txtDepartment" Style="{StaticResource InputTextBox}" FontSize="14" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Text="Código Postal:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                        <TextBox x:Name="txtZipCode" Style="{StaticResource InputTextBox}" FontSize="14" />
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="Tipo de Contribuyente:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                <ComboBox x:Name="cmbTaxpayerType" FontSize="14" Padding="10,8" Margin="0,0,0,12">
+                    <ComboBoxItem Content="Pequeño Contribuyente (PEQ)" Tag="PEQ" />
+                    <ComboBoxItem Content="General (GEN)" Tag="GEN" />
+                </ComboBox>
+
+                <!-- Separator -->
+                <Separator Margin="0,5,0,15" />
+
+                <!-- Section: Infile Credentials -->
+                <TextBlock Text="CREDENCIALES INFILE (FEL)" FontSize="13" FontWeight="Bold"
+                           Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,10" />
+
+                <TextBlock Text="Usuario Certificación:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                <TextBox x:Name="txtCertUser" Style="{StaticResource InputTextBox}" FontSize="14" Margin="0,0,0,8" />
+
+                <TextBlock Text="Llave Certificación:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                <TextBox x:Name="txtCertKey" Style="{StaticResource InputTextBox}" FontSize="14" Margin="0,0,0,8" />
+
+                <TextBlock Text="Llave Firma:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                <TextBox x:Name="txtSigningKey" Style="{StaticResource InputTextBox}" FontSize="14" Margin="0,0,0,8" />
+
+                <TextBlock Text="Código Emisor / Alias:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                <TextBox x:Name="txtEmitterCode" Style="{StaticResource InputTextBox}" FontSize="14" Margin="0,0,0,8" />
+
+                <TextBlock Text="Email para copia de facturas:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                <TextBox x:Name="txtCopyEmail" Style="{StaticResource InputTextBox}" FontSize="14" Margin="0,0,0,12" />
+
+                <!-- Separator -->
+                <Separator Margin="0,5,0,15" />
+
+                <!-- Section: Eleventa -->
+                <TextBlock Text="ELEVENTA (PUNTO DE VENTA)" FontSize="13" FontWeight="Bold"
+                           Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,10" />
+
+                <TextBlock Text="Ruta de Base de Datos Eleventa:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" x:Name="txtDatabasePath" Style="{StaticResource InputTextBox}" FontSize="14"
+                             Text="C:\Eleventa\Data\PDVDATA.FDB" />
+                    <Button Grid.Column="2" Content="Buscar..."
+                            Style="{StaticResource PrimaryButton}" Background="#6B7280"
+                            Click="BtnBrowseDb_Click" />
+                </Grid>
+
+                <!-- Separator -->
+                <Separator Margin="0,5,0,15" />
+
+                <!-- Section: Printer -->
+                <TextBlock Text="IMPRESORA TÉRMICA" FontSize="13" FontWeight="Bold"
+                           Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,10" />
+
+                <TextBlock Text="Nombre de Impresora:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,0,3" />
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox Grid.Column="0" x:Name="cmbPrinter" FontSize="14" Padding="10,8" IsEditable="True" />
+                    <Button Grid.Column="2" Content="Detectar"
+                            Style="{StaticResource PrimaryButton}" Background="#6B7280"
+                            Click="BtnDetectPrinters_Click" />
+                </Grid>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <TextBlock Text="Ancho de Papel:" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,0,10,0" VerticalAlignment="Center" />
+                    <ComboBox x:Name="cmbPaperWidth" FontSize="14" Padding="10,8" Width="120">
+                        <ComboBoxItem Content="58mm" Tag="58" />
+                        <ComboBoxItem Content="80mm" Tag="80" IsSelected="True" />
+                    </ComboBox>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Bottom Buttons -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Content="Guardar y Comenzar"
+                    Style="{StaticResource PrimaryButton}"
+                    FontSize="16" Padding="20,14"
+                    Click="BtnSave_Click" />
+
+            <Button Grid.Column="2" Content="Cancelar"
+                    Style="{StaticResource PrimaryButton}"
+                    Background="{StaticResource ErrorBrush}"
+                    FontSize="16" Padding="20,14"
+                    Click="BtnCancel_Click" />
+        </Grid>
+    </Grid>
+</Window>
