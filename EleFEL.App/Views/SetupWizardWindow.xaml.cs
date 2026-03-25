@@ -4,7 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Windows;
 using EleFEL.Core.Models;
-using Microsoft.Win32;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace EleFEL.App.Views;
 
