@@ -269,6 +269,7 @@ public class LocalDatabaseService : IDisposable
     public void Dispose()
     {
         _connection?.Dispose();
+        _dbLock.Dispose();
         GC.SuppressFinalize(this);
     }
 }

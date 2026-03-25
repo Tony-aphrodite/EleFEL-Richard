@@ -65,9 +65,9 @@ public class EleFelEngine : IDisposable
 
         _log.LogInfo("EleFEL Engine starting...");
 
-        await _db.InitializeAsync();
-
         _engineStartTime = DateTime.Now;
+
+        await _db.InitializeAsync();
 
         // On first run, set baseline to current max sale ID in Eleventa
         // so we only detect NEW sales from this point forward

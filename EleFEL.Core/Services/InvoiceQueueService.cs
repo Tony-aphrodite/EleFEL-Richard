@@ -75,38 +75,49 @@ public class InvoiceQueueService
 
         _log.LogRetry(invoice.EleventaSaleId, invoice.RetryCount, _maxRetries);
 
-        var result = await _certifier.CertifyAsync(invoice.XmlContent);
-
-        if (result.Success)
+        try
         {
-            invoice.Status = InvoiceStatus.Certified;
-            invoice.Uuid = result.Uuid;
-            invoice.AuthorizationNumber = result.AuthorizationNumber;
-            invoice.SerialNumber = result.SerialNumber;
-            invoice.DteNumber = result.DteNumber;
-            invoice.CertificationDate = result.CertificationDate;
+            var result = await _certifier.CertifyAsync(invoice.XmlContent);
 
-            // Save certified XML and generate PDF
-            if (result.CertifiedXml != null)
+            if (result.Success)
             {
-                invoice.XmlFilePath = await _fileService.SaveXmlAsync(invoice, result.CertifiedXml);
-                invoice.PdfFilePath = await _fileService.GenerateAndSavePdfAsync(invoice, result.CertifiedXml);
+                invoice.Status = InvoiceStatus.Certified;
+                invoice.Uuid = result.Uuid;
+                invoice.AuthorizationNumber = result.AuthorizationNumber;
+                invoice.SerialNumber = result.SerialNumber;
+                invoice.DteNumber = result.DteNumber;
+                invoice.CertificationDate = result.CertificationDate;
+
+                // Save certified XML and generate PDF
+                if (result.CertifiedXml != null)
+                {
+                    invoice.XmlFilePath = await _fileService.SaveXmlAsync(invoice, result.CertifiedXml);
+                    invoice.PdfFilePath = await _fileService.GenerateAndSavePdfAsync(invoice, result.CertifiedXml);
+                }
+
+                invoice.ErrorMessage = null;
+                await _db.UpdateInvoiceAsync(invoice);
+
+                _log.LogInvoiceCertified(invoice.EleventaSaleId, result.Uuid ?? "N/A");
+                OnInvoiceCertified?.Invoke(invoice);
             }
+            else
+            {
+                invoice.Status = InvoiceStatus.Error;
+                invoice.ErrorMessage = result.ErrorMessage;
+                await _db.UpdateInvoiceAsync(invoice);
 
-            invoice.ErrorMessage = null;
-            await _db.UpdateInvoiceAsync(invoice);
-
-            _log.LogInvoiceCertified(invoice.EleventaSaleId, result.Uuid ?? "N/A");
-            OnInvoiceCertified?.Invoke(invoice);
+                _log.LogError($"Certification failed for SaleID={invoice.EleventaSaleId}: {result.ErrorMessage}");
+                OnInvoiceFailed?.Invoke(invoice, result.ErrorMessage ?? "Unknown error");
+            }
         }
-        else
+        catch (Exception ex)
         {
+            // Recover from Sending state to Error so it can be retried
             invoice.Status = InvoiceStatus.Error;
-            invoice.ErrorMessage = result.ErrorMessage;
+            invoice.ErrorMessage = $"Exception: {ex.Message}";
             await _db.UpdateInvoiceAsync(invoice);
-
-            _log.LogError($"Certification failed for SaleID={invoice.EleventaSaleId}: {result.ErrorMessage}");
-            OnInvoiceFailed?.Invoke(invoice, result.ErrorMessage ?? "Unknown error");
+            _log.LogError($"Exception during certification for SaleID={invoice.EleventaSaleId}", ex);
         }
     }
 }
