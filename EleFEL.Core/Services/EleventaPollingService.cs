@@ -16,28 +16,22 @@ public class EleventaPollingService : IDisposable
     {
         _log = log;
 
-        // Find Firebird embedded client library in app directory
-        var appDir = AppDomain.CurrentDomain.BaseDirectory;
-        var fbClientPath = Path.Combine(appDir, "fbembed.dll");
-        if (!File.Exists(fbClientPath))
-            fbClientPath = Path.Combine(appDir, "fbclient.dll");
-
-        // Eleventa uses embedded Firebird - connect in read-only mode
+        // Connect to Firebird server running on localhost (used by Eleventa)
+        // Eleventa runs Firebird as a service on port 3050
         var csb = new FbConnectionStringBuilder
         {
+            DataSource = "localhost",
+            Port = 3050,
             Database = config.DatabasePath,
-            ServerType = FbServerType.Embedded,
+            ServerType = FbServerType.Default,
             UserID = "SYSDBA",
             Password = "masterkey",
             Charset = "UTF8",
             Pooling = false
         };
 
-        if (File.Exists(fbClientPath))
-            csb.ClientLibrary = fbClientPath;
-
         _connectionString = csb.ToString();
-        _log.LogInfo($"Firebird connection configured: DB={config.DatabasePath}");
+        _log.LogInfo($"Firebird connection configured: Server=localhost:3050, DB={config.DatabasePath}");
     }
 
     /// <summary>
