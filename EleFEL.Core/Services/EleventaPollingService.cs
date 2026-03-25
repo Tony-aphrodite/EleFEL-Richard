@@ -35,9 +35,10 @@ public class EleventaPollingService : IDisposable
     }
 
     /// <summary>
-    /// Reads new sales from Eleventa's database that haven't been processed yet
+    /// Reads new sales from Eleventa's database that haven't been processed yet.
+    /// Uses both ID-based and date-based filtering to ensure only truly new sales are detected.
     /// </summary>
-    public async Task<List<EleventaSale>> GetNewSalesAsync(long lastProcessedSaleId)
+    public async Task<List<EleventaSale>> GetNewSalesAsync(long lastProcessedSaleId, DateTime engineStartTime)
     {
         var sales = new List<EleventaSale>();
 
@@ -46,8 +47,9 @@ public class EleventaPollingService : IDisposable
             await using var connection = new FbConnection(_connectionString);
             await connection.OpenAsync();
 
-            // Eleventa uses VENTATICKETS as the main sales table
-            // Database file: PDVDATA.FDB - verified column names from actual DB
+            // Double safety: filter by ID AND by date
+            // If lastProcessedSaleId is 0 (first run / baseline failed), the date filter
+            // ensures we only pick up sales made after the engine started
             const string salesQuery = """
                 SELECT
                     v.ID as SaleId,
@@ -63,11 +65,13 @@ public class EleventaPollingService : IDisposable
                 FROM VENTATICKETS v
                 WHERE v.ID > @LastId
                 AND v.VENDIDO_EN IS NOT NULL
+                AND v.VENDIDO_EN >= @MinDate
                 ORDER BY v.ID ASC
                 """;
 
             await using var salesCmd = new FbCommand(salesQuery, connection);
             salesCmd.Parameters.AddWithValue("@LastId", lastProcessedSaleId);
+            salesCmd.Parameters.AddWithValue("@MinDate", engineStartTime);
 
             await using var reader = await salesCmd.ExecuteReaderAsync();
             while (await reader.ReadAsync())

@@ -22,6 +22,7 @@ public class EleFelEngine : IDisposable
     private CancellationTokenSource? _cts;
     private Task? _pollingTask;
     private Task? _queueTask;
+    private DateTime _engineStartTime;
 
     public EngineStatus Status { get; private set; } = EngineStatus.Stopped;
 
@@ -66,13 +67,22 @@ public class EleFelEngine : IDisposable
 
         await _db.InitializeAsync();
 
+        _engineStartTime = DateTime.Now;
+
         // On first run, set baseline to current max sale ID in Eleventa
         // so we only detect NEW sales from this point forward
         if (!await _db.HasBaselineSaleIdAsync())
         {
             var currentMaxId = await _polling.GetCurrentMaxSaleIdAsync();
-            await _db.SetBaselineSaleIdAsync(currentMaxId);
-            _log.LogInfo($"First run: baseline set to SaleID={currentMaxId}. Only new sales will be detected.");
+            if (currentMaxId > 0)
+            {
+                await _db.SetBaselineSaleIdAsync(currentMaxId);
+                _log.LogInfo($"First run: baseline set to SaleID={currentMaxId}. Only new sales will be detected.");
+            }
+            else
+            {
+                _log.LogWarning("Could not get max sale ID from Eleventa. Will use timestamp filter as fallback.");
+            }
         }
 
         // Clean up expired postponed invoices on startup
@@ -275,7 +285,7 @@ public class EleFelEngine : IDisposable
             try
             {
                 var lastSaleId = await _db.GetLastProcessedSaleIdAsync();
-                var newSales = await _polling.GetNewSalesAsync(lastSaleId);
+                var newSales = await _polling.GetNewSalesAsync(lastSaleId, _engineStartTime);
 
                 foreach (var sale in newSales)
                 {
