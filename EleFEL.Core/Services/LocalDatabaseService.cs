@@ -63,6 +63,11 @@ public class LocalDatabaseService : IDisposable
             CREATE INDEX IF NOT EXISTS IX_Invoices_Status ON Invoices(Status);
             CREATE INDEX IF NOT EXISTS IX_Invoices_EleventaSaleId ON Invoices(EleventaSaleId);
             CREATE INDEX IF NOT EXISTS IX_Customers_Nit ON Customers(Nit);
+
+            CREATE TABLE IF NOT EXISTS Settings (
+                Key TEXT PRIMARY KEY,
+                Value TEXT NOT NULL
+            );
             """;
 
         await _connection!.ExecuteAsync(sql);
@@ -171,10 +176,39 @@ public class LocalDatabaseService : IDisposable
 
     public async Task<long> GetLastProcessedSaleIdAsync()
     {
-        // Exclude Postponed (5) sales - they should be re-detectable after reactivation
-        // Include: Pending (0), Sending (1), Certified (2), Error (3), Cancelled (4)
-        const string sql = "SELECT COALESCE(MAX(EleventaSaleId), 0) FROM Invoices WHERE Status != 5";
-        return await _connection!.ExecuteScalarAsync<long>(sql);
+        // First check invoices table
+        const string invoiceSql = "SELECT COALESCE(MAX(EleventaSaleId), 0) FROM Invoices WHERE Status != 5";
+        var fromInvoices = await _connection!.ExecuteScalarAsync<long>(invoiceSql);
+
+        // Also check the baseline (set on first run to skip historical sales)
+        const string baselineSql = "SELECT COALESCE(Value, '0') FROM Settings WHERE Key = 'BaselineSaleId'";
+        var baselineStr = await _connection!.ExecuteScalarAsync<string>(baselineSql) ?? "0";
+        long.TryParse(baselineStr, out var baseline);
+
+        // Return whichever is higher
+        return Math.Max(fromInvoices, baseline);
+    }
+
+    /// <summary>
+    /// Sets the baseline sale ID so that historical sales are skipped on first run
+    /// </summary>
+    public async Task SetBaselineSaleIdAsync(long saleId)
+    {
+        const string sql = """
+            INSERT INTO Settings (Key, Value) VALUES ('BaselineSaleId', @Value)
+            ON CONFLICT(Key) DO UPDATE SET Value = excluded.Value
+            """;
+        await _connection!.ExecuteAsync(sql, new { Value = saleId.ToString() });
+    }
+
+    /// <summary>
+    /// Checks if the baseline has already been set (i.e., not the first run)
+    /// </summary>
+    public async Task<bool> HasBaselineSaleIdAsync()
+    {
+        const string sql = "SELECT COUNT(1) FROM Settings WHERE Key = 'BaselineSaleId'";
+        var count = await _connection!.ExecuteScalarAsync<int>(sql);
+        return count > 0;
     }
 
     // ─── Postponed Operations ────────────────────────────────────

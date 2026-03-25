@@ -204,6 +204,29 @@ public class EleventaPollingService : IDisposable
         return items;
     }
 
+    /// <summary>
+    /// Gets the current maximum sale ID from Eleventa.
+    /// Used on first run to skip all historical sales and only detect new ones.
+    /// </summary>
+    public async Task<long> GetCurrentMaxSaleIdAsync()
+    {
+        try
+        {
+            await using var connection = new FbConnection(_connectionString);
+            await connection.OpenAsync();
+
+            const string query = "SELECT COALESCE(MAX(ID), 0) FROM VENTATICKETS";
+            await using var cmd = new FbCommand(query, connection);
+            var result = await cmd.ExecuteScalarAsync();
+            return Convert.ToInt64(result);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError("Error getting max sale ID from Eleventa", ex);
+            return 0;
+        }
+    }
+
     public void Dispose()
     {
         GC.SuppressFinalize(this);

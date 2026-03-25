@@ -66,6 +66,15 @@ public class EleFelEngine : IDisposable
 
         await _db.InitializeAsync();
 
+        // On first run, set baseline to current max sale ID in Eleventa
+        // so we only detect NEW sales from this point forward
+        if (!await _db.HasBaselineSaleIdAsync())
+        {
+            var currentMaxId = await _polling.GetCurrentMaxSaleIdAsync();
+            await _db.SetBaselineSaleIdAsync(currentMaxId);
+            _log.LogInfo($"First run: baseline set to SaleID={currentMaxId}. Only new sales will be detected.");
+        }
+
         // Clean up expired postponed invoices on startup
         var deleted = await _db.DeleteExpiredPostponedAsync(_config.System.PostponedExpirationDays);
         if (deleted > 0)
