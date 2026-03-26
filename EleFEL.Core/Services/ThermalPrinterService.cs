@@ -59,6 +59,7 @@ public class ThermalPrinterService
     private byte[] BuildReceiptData(Invoice invoice, EleventaSale sale, EmitterConfig emitter)
     {
         using var ms = new MemoryStream();
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         var encoding = Encoding.GetEncoding("IBM850");
         int lineWidth = _config.PaperWidthMm >= 80 ? 48 : 32;
 

@@ -129,6 +129,10 @@
               "target": "Package",
               "version": "[2024.10.2, )"
             },
+            "System.Text.Encoding.CodePages": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "System.Text.Json": {
               "target": "Package",
               "version": "[8.0.5, )"
