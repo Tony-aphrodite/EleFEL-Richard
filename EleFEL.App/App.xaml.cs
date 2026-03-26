@@ -15,13 +15,20 @@ public partial class App : Application
     private LogService? _logService;
     private bool _nitWindowOpen;
 
+    /// <summary>
+    /// Returns the directory where EleFEL.App.exe is located (not the temp extraction dir).
+    /// Critical for single-file publish: AppDirectory points to temp dir.
+    /// </summary>
+    private static string AppDirectory =>
+        Path.GetDirectoryName(Environment.ProcessPath) ?? AppDomain.CurrentDomain.BaseDirectory;
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
-        // Load configuration
-        _configService = new ConfigService();
-        var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+        // Load configuration - use exe directory, not temp extraction dir
+        var configPath = Path.Combine(AppDirectory, "config.json");
+        _configService = new ConfigService(configPath);
         var needsSetup = !File.Exists(configPath);
 
         var config = _configService.Load();
@@ -47,13 +54,13 @@ public partial class App : Application
         }
 
         // Initialize logging
-        var logDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.System.LogDirectory);
+        var logDir = Path.Combine(AppDirectory, config.System.LogDirectory);
         _logService = new LogService(logDir);
         _logService.LogInfo("EleFEL application starting");
 
         // Initialize services
-        var dataDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.System.DataDirectory);
-        var invoiceDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.System.InvoiceDirectory);
+        var dataDir = Path.Combine(AppDirectory, config.System.DataDirectory);
+        var invoiceDir = Path.Combine(AppDirectory, config.System.InvoiceDirectory);
 
         var db = new LocalDatabaseService(dataDir);
         var polling = new EleventaPollingService(config.Eleventa, _logService);
@@ -93,7 +100,7 @@ public partial class App : Application
     private void SetupTrayIcon()
     {
         // Load icon from Assets folder
-        var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "EleFEL.ico");
+        var iconPath = System.IO.Path.Combine(AppDirectory, "Assets", "EleFEL.ico");
         System.Drawing.Icon? appIcon = null;
         if (System.IO.File.Exists(iconPath))
         {
@@ -211,7 +218,7 @@ public partial class App : Application
     {
         Dispatcher.Invoke(() =>
         {
-            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+            var configPath = Path.Combine(AppDirectory, "config.json");
             var wizard = new Views.SetupWizardWindow(configPath, _configService?.Config);
             wizard.ShowDialog();
 
@@ -228,7 +235,7 @@ public partial class App : Application
 
     private void OpenInvoicesFolder()
     {
-        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+        var path = Path.Combine(AppDirectory,
             _configService?.Config.System.InvoiceDirectory ?? "Invoices");
         if (Directory.Exists(path))
             System.Diagnostics.Process.Start("explorer.exe", path);
@@ -236,7 +243,7 @@ public partial class App : Application
 
     private void OpenLogsFolder()
     {
-        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+        var path = Path.Combine(AppDirectory,
             _configService?.Config.System.LogDirectory ?? "Logs");
         if (Directory.Exists(path))
             System.Diagnostics.Process.Start("explorer.exe", path);

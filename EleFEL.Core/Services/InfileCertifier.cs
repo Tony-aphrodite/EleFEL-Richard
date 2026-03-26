@@ -65,7 +65,9 @@ public class InfileCertifier : IFelCertifier, IDisposable
             // Save generated XML for debugging
             try
             {
-                var debugDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Debug");
+                var debugDir = Path.Combine(
+                    Path.GetDirectoryName(Environment.ProcessPath) ?? AppDomain.CurrentDomain.BaseDirectory,
+                    "Debug");
                 Directory.CreateDirectory(debugDir);
                 File.WriteAllText(Path.Combine(debugDir, $"last_xml_{DateTime.Now:HHmmss}.xml"), xmlContent);
                 _log.LogInfo($"Debug XML saved to Debug folder");

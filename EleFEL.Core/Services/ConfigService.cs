@@ -22,7 +22,10 @@ public class ConfigService
 
     public ConfigService(string? configPath = null)
     {
-        _configPath = configPath ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+        _configPath = configPath
+            ?? Path.Combine(
+                Path.GetDirectoryName(Environment.ProcessPath) ?? AppDomain.CurrentDomain.BaseDirectory,
+                "config.json");
     }
 
     public AppConfig Load()
