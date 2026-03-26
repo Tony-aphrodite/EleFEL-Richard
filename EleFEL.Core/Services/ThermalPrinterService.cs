@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Text;
 using EleFEL.Core.Models;
 
@@ -147,18 +148,87 @@ public class ThermalPrinterService
         return ms.ToArray();
     }
 
-    private async Task SendToPrinterAsync(byte[] data)
+    private Task SendToPrinterAsync(byte[] data)
     {
-        // On Windows, send directly to the printer share name or port
-        // This uses the raw printing approach via file write to printer path
-        var printerPath = _config.PrinterName;
+        var printerName = _config.PrinterName;
 
-        if (string.IsNullOrEmpty(printerPath))
+        if (string.IsNullOrEmpty(printerName))
             throw new InvalidOperationException("Printer name not configured");
 
-        // If printer name starts with \\ it's a network/shared printer
-        // Otherwise try as a local port (e.g., "LPT1", "COM3", or share name)
-        await File.WriteAllBytesAsync(printerPath, data);
+        if (!RawPrinterHelper.SendBytesToPrinter(printerName, data))
+            throw new InvalidOperationException($"Failed to send data to printer: {printerName}");
+
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Windows API raw printing helper - sends raw bytes directly to a printer
+    /// </summary>
+    private static class RawPrinterHelper
+    {
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+        private class DOCINFOA
+        {
+            [MarshalAs(UnmanagedType.LPStr)] public string? pDocName;
+            [MarshalAs(UnmanagedType.LPStr)] public string? pOutputFile;
+            [MarshalAs(UnmanagedType.LPStr)] public string? pDataType;
+        }
+
+        [DllImport("winspool.Drv", EntryPoint = "OpenPrinterA", CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern bool OpenPrinter([MarshalAs(UnmanagedType.LPStr)] string szPrinter, out IntPtr hPrinter, IntPtr pd);
+
+        [DllImport("winspool.Drv", EntryPoint = "ClosePrinter", SetLastError = true)]
+        private static extern bool ClosePrinter(IntPtr hPrinter);
+
+        [DllImport("winspool.Drv", EntryPoint = "StartDocPrinterA", CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern bool StartDocPrinter(IntPtr hPrinter, int level, [In] DOCINFOA di);
+
+        [DllImport("winspool.Drv", EntryPoint = "EndDocPrinter", SetLastError = true)]
+        private static extern bool EndDocPrinter(IntPtr hPrinter);
+
+        [DllImport("winspool.Drv", EntryPoint = "StartPagePrinter", SetLastError = true)]
+        private static extern bool StartPagePrinter(IntPtr hPrinter);
+
+        [DllImport("winspool.Drv", EntryPoint = "EndPagePrinter", SetLastError = true)]
+        private static extern bool EndPagePrinter(IntPtr hPrinter);
+
+        [DllImport("winspool.Drv", EntryPoint = "WritePrinter", SetLastError = true)]
+        private static extern bool WritePrinter(IntPtr hPrinter, IntPtr pBytes, int dwCount, out int dwWritten);
+
+        public static bool SendBytesToPrinter(string printerName, byte[] data)
+        {
+            var di = new DOCINFOA { pDocName = "EleFEL Receipt", pDataType = "RAW" };
+            IntPtr hPrinter = IntPtr.Zero;
+
+            if (!OpenPrinter(printerName.Normalize(), out hPrinter, IntPtr.Zero))
+                return false;
+
+            try
+            {
+                if (!StartDocPrinter(hPrinter, 1, di)) return false;
+                if (!StartPagePrinter(hPrinter)) return false;
+
+                var pUnmanagedBytes = Marshal.AllocCoTaskMem(data.Length);
+                try
+                {
+                    Marshal.Copy(data, 0, pUnmanagedBytes, data.Length);
+                    if (!WritePrinter(hPrinter, pUnmanagedBytes, data.Length, out _))
+                        return false;
+                }
+                finally
+                {
+                    Marshal.FreeCoTaskMem(pUnmanagedBytes);
+                }
+
+                EndPagePrinter(hPrinter);
+                EndDocPrinter(hPrinter);
+                return true;
+            }
+            finally
+            {
+                ClosePrinter(hPrinter);
+            }
+        }
     }
 
     private static string FormatLine(string left, string right, int width)
