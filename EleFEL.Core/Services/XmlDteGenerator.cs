@@ -154,9 +154,9 @@ public class XmlDteGenerator
         }
         else if (dteType == "FPEQ")
         {
-            // Pequeño Contribuyente - exempt from IVA
+            // Pequeño Contribuyente
             frases.Add(new XElement(DteNs + "Frase",
-                new XAttribute("TipoFrase", "4"),
+                new XAttribute("TipoFrase", "1"),
                 new XAttribute("CodigoEscenario", "1")
             ));
         }
