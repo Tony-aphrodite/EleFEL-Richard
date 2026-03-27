@@ -147,8 +147,8 @@ public class XmlDteGenerator
             foreach (var frase in _emitter.Frases)
             {
                 frases.Add(new XElement(DteNs + "Frase",
-                    new XAttribute("CodigoEscenario", frase.CodigoEscenario.ToString()),
-                    new XAttribute("TipoFrase", frase.TipoFrase.ToString())
+                    new XAttribute("TipoFrase", frase.TipoFrase.ToString()),
+                    new XAttribute("CodigoEscenario", frase.CodigoEscenario.ToString())
                 ));
             }
         }
@@ -156,16 +156,16 @@ public class XmlDteGenerator
         {
             // Pequeño Contribuyente - exempt from IVA
             frases.Add(new XElement(DteNs + "Frase",
-                new XAttribute("CodigoEscenario", "1"),
-                new XAttribute("TipoFrase", "4")
+                new XAttribute("TipoFrase", "4"),
+                new XAttribute("CodigoEscenario", "1")
             ));
         }
         else
         {
             // Régimen General - IVA included in price (TipoFrase 1)
             frases.Add(new XElement(DteNs + "Frase",
-                new XAttribute("CodigoEscenario", "1"),
-                new XAttribute("TipoFrase", "1")
+                new XAttribute("TipoFrase", "1"),
+                new XAttribute("CodigoEscenario", "1")
             ));
         }
 
