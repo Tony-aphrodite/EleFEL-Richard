@@ -1,34 +1,7 @@
-import Database from 'better-sqlite3'
-import path from 'path'
 import fs from 'fs'
+import path from 'path'
 
-const DB_PATH = process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'licenses.db')
-
-function getDb() {
-  const dir = path.dirname(DB_PATH)
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
-
-  const db = new Database(DB_PATH)
-  db.pragma('journal_mode = WAL')
-
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS licenses (
-      id          INTEGER PRIMARY KEY AUTOINCREMENT,
-      license_key TEXT    NOT NULL UNIQUE,
-      client_name TEXT    NOT NULL,
-      client_email TEXT   DEFAULT '',
-      client_phone TEXT   DEFAULT '',
-      status      TEXT    NOT NULL DEFAULT 'active',
-      created_at  TEXT    NOT NULL,
-      expires_at  TEXT    NOT NULL,
-      notes       TEXT    DEFAULT ''
-    )
-  `)
-
-  return db
-}
+const DB_PATH = process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'licenses.json')
 
 export interface License {
   id: number
@@ -42,19 +15,38 @@ export interface License {
   notes: string
 }
 
+interface DB {
+  next_id: number
+  licenses: License[]
+}
+
+function readDb(): DB {
+  const dir = path.dirname(DB_PATH)
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+  if (!fs.existsSync(DB_PATH)) {
+    const empty: DB = { next_id: 1, licenses: [] }
+    fs.writeFileSync(DB_PATH, JSON.stringify(empty, null, 2), 'utf-8')
+    return empty
+  }
+  return JSON.parse(fs.readFileSync(DB_PATH, 'utf-8')) as DB
+}
+
+function writeDb(db: DB) {
+  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2), 'utf-8')
+}
+
 export function getAllLicenses(): License[] {
-  const db = getDb()
-  return db.prepare('SELECT * FROM licenses ORDER BY created_at DESC').all() as License[]
+  return readDb().licenses.sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  )
 }
 
 export function getLicenseByKey(key: string): License | undefined {
-  const db = getDb()
-  return db.prepare('SELECT * FROM licenses WHERE license_key = ?').get(key) as License | undefined
+  return readDb().licenses.find(l => l.license_key === key)
 }
 
 export function getLicenseById(id: number): License | undefined {
-  const db = getDb()
-  return db.prepare('SELECT * FROM licenses WHERE id = ?').get(id) as License | undefined
+  return readDb().licenses.find(l => l.id === id)
 }
 
 export function createLicense(data: {
@@ -64,44 +56,48 @@ export function createLicense(data: {
   expires_at: string
   notes?: string
 }): License {
-  const db = getDb()
-  const key = generateLicenseKey()
-  const now = new Date().toISOString()
-
-  db.prepare(`
-    INSERT INTO licenses (license_key, client_name, client_email, client_phone, status, created_at, expires_at, notes)
-    VALUES (?, ?, ?, ?, 'active', ?, ?, ?)
-  `).run(key, data.client_name, data.client_email || '', data.client_phone || '', now, data.expires_at, data.notes || '')
-
-  return getLicenseByKey(key)!
+  const db = readDb()
+  const license: License = {
+    id: db.next_id++,
+    license_key: generateLicenseKey(),
+    client_name: data.client_name,
+    client_email: data.client_email || '',
+    client_phone: data.client_phone || '',
+    status: 'active',
+    created_at: new Date().toISOString(),
+    expires_at: data.expires_at,
+    notes: data.notes || '',
+  }
+  db.licenses.push(license)
+  writeDb(db)
+  return license
 }
 
 export function updateLicenseStatus(id: number, status: 'active' | 'inactive') {
-  const db = getDb()
-  db.prepare('UPDATE licenses SET status = ? WHERE id = ?').run(status, id)
+  const db = readDb()
+  const license = db.licenses.find(l => l.id === id)
+  if (license) { license.status = status; writeDb(db) }
 }
 
 export function renewLicense(id: number, days: number = 30) {
-  const db = getDb()
-  const license = getLicenseById(id)
+  const db = readDb()
+  const license = db.licenses.find(l => l.id === id)
   if (!license) return
-
-  const current = new Date(license.expires_at)
-  const base = current > new Date() ? current : new Date()
+  const base = new Date(license.expires_at) > new Date() ? new Date(license.expires_at) : new Date()
   base.setDate(base.getDate() + days)
-
-  db.prepare('UPDATE licenses SET expires_at = ?, status = ? WHERE id = ?')
-    .run(base.toISOString(), 'active', id)
+  license.expires_at = base.toISOString()
+  license.status = 'active'
+  writeDb(db)
 }
 
 export function deleteLicense(id: number) {
-  const db = getDb()
-  db.prepare('DELETE FROM licenses WHERE id = ?').run(id)
+  const db = readDb()
+  db.licenses = db.licenses.filter(l => l.id !== id)
+  writeDb(db)
 }
 
 function generateLicenseKey(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-  const segment = () =>
-    Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
-  return `EFEL-${segment()}-${segment()}-${segment()}`
+  const seg = () => Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+  return `EFEL-${seg()}-${seg()}-${seg()}`
 }
