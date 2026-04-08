@@ -1,6 +1,6 @@
 {
   "eleventa": {
-    "databasePath": "C:\\Eleventa\\Data\\PDVDATA.FDB",
+    "databasePath": "C:\\Archivos de programa (x86)\\AbarrotesMultiCaja\\db\\PDVDATA.FDB",
     "pollingIntervalSeconds": 10
   },
   "infile": {
