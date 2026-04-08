@@ -5,7 +5,7 @@
   },
   "infile": {
     "signingUrl": "https://signer-emisores.feel.com.gt/sign_solicitud_firmas/firma_xml",
-    "certificationUrl": "https://certificador.feel.com.gt/fel/certificacion/v2/dte/",
+    "certificationUrl": "https://certificador.feel.com.gt/fel/certificacion/dte/",
     "cancellationUrl": "https://certificador.feel.com.gt/fel/anulacion/dte/",
     "nitConsultUrl": "https://consultareceptores.feel.com.gt/rest/action",
     "signingKey": "1eff830449585299b11e9d209801cc4f",
