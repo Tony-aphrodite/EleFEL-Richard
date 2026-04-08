@@ -15,7 +15,7 @@
     "signingAlias": "105462918",
     "copyEmail": "Gabriela.julajuj20@gmail.com",
     "certifierNit": "12521337",
-    "useSandbox": true
+    "useSandbox": false
   },
   "emitter": {
     "nit": "105462918",
