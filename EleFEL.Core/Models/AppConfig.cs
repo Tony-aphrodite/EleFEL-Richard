@@ -24,7 +24,7 @@ public class InfileConfig
     public string SigningUrl { get; set; } = "https://signer-emisores.feel.com.gt/sign_solicitud_firmas/firma_xml";
 
     // Certification endpoint
-    public string CertificationUrl { get; set; } = "https://certificador.feel.com.gt/fel/certificacion/dte/";
+    public string CertificationUrl { get; set; } = "https://certificador.feel.com.gt/fel/certificacion/v2/dte/";
 
     // Cancellation endpoint
     public string CancellationUrl { get; set; } = "https://certificador.feel.com.gt/fel/anulacion/dte/";
