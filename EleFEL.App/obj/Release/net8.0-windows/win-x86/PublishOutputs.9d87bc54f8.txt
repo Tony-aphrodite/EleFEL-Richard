@@ -1,0 +1,5 @@
+C:\Users\PH\Documents\Projects\EleFEL-Richard\publish\EleFEL.App.pdb
+C:\Users\PH\Documents\Projects\EleFEL-Richard\publish\LatoFont\OFL.txt
+C:\Users\PH\Documents\Projects\EleFEL-Richard\publish\Assets\logo.png
+C:\Users\PH\Documents\Projects\EleFEL-Richard\publish\EleFEL.Core.pdb
+C:\Users\PH\Documents\Projects\EleFEL-Richard\publish\EleFEL.App.exe

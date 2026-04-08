@@ -1,0 +1,52 @@
+{
+  "eleventa": {
+    "databasePath": "C:\\Eleventa\\Data\\PDVDATA.FDB",
+    "pollingIntervalSeconds": 10
+  },
+  "infile": {
+    "signingUrl": "https://signer-emisores.feel.com.gt/sign_solicitud_firmas/firma_xml",
+    "certificationUrl": "https://certificador.feel.com.gt/fel/certificacion/v2/dte/",
+    "cancellationUrl": "https://certificador.feel.com.gt/fel/anulacion/dte/",
+    "nitConsultUrl": "https://consultareceptores.feel.com.gt/rest/action",
+    "signingKey": "1eff830449585299b11e9d209801cc4f",
+    "certUser": "105462918",
+    "certKey": "F43B64AFF2626BA7BC7B8F27732549F9",
+    "emitterCode": "105462918",
+    "signingAlias": "105462918",
+    "copyEmail": "Gabriela.julajuj20@gmail.com",
+    "certifierNit": "12521337",
+    "useSandbox": true
+  },
+  "emitter": {
+    "nit": "105462918",
+    "name": "HEIDY GABRIELA JULAJUJ SALOJ",
+    "commercialName": "MUNDO DE 3 GUASTATOYA",
+    "address": "4 CALLE, 02-35, ZONA 4, BARRIO EL GOLFO",
+    "zipCode": "02001",
+    "municipality": "GUASTATOYA",
+    "department": "EL PROGRESO",
+    "country": "GT",
+    "taxpayerType": "PEQ",
+    "currencyCode": "GTQ",
+    "establishmentCode": "1",
+    "frases": [
+      {
+        "tipoFrase": 2,
+        "codigoEscenario": 1
+      }
+    ]
+  },
+  "printer": {
+    "printerName": "3nStar RPT004",
+    "paperWidthMm": 58,
+    "enabled": true
+  },
+  "system": {
+    "dataDirectory": "Data",
+    "logDirectory": "Logs",
+    "invoiceDirectory": "Invoices",
+    "queueRetryIntervalSeconds": 60,
+    "maxRetryAttempts": 10,
+    "postponedExpirationDays": 3
+  }
+}
