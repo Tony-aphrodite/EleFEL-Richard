@@ -13,6 +13,8 @@ public partial class App : Application
     private EleFelEngine? _engine;
     private ConfigService? _configService;
     private LogService? _logService;
+    private LicenseService? _licenseService;
+    private System.Threading.Timer? _licenseRecheckTimer;
     private bool _nitWindowOpen;
 
     /// <summary>
@@ -37,7 +39,22 @@ public partial class App : Application
         if (!needsSetup && string.IsNullOrWhiteSpace(config.Emitter.Nit))
             needsSetup = true;
 
-        // Show setup wizard if needed
+        // Initialize logging first — needed by the license service
+        var logDir = Path.Combine(AppDirectory, config.System.LogDirectory);
+        _logService = new LogService(logDir);
+        _logService.LogInfo("EleFEL application starting");
+
+        // License verification — must pass before setup wizard or engine
+        var licensePath = Path.Combine(AppDirectory, "license.json");
+        _licenseService = new LicenseService(licensePath, _logService);
+        if (!await EnsureLicenseAsync())
+        {
+            Shutdown();
+            return;
+        }
+        StartLicenseRecheckTimer();
+
+        // Show setup wizard if needed (only after license is validated)
         if (needsSetup)
         {
             var wizard = new Views.SetupWizardWindow(configPath, needsSetup ? null : config);
@@ -53,10 +70,9 @@ public partial class App : Application
             config = _configService.Load();
         }
 
-        // Initialize logging
-        var logDir = Path.Combine(AppDirectory, config.System.LogDirectory);
-        _logService = new LogService(logDir);
-        _logService.LogInfo("EleFEL application starting");
+        _logService.LogInfo($"Config loaded: TaxpayerType={config.Emitter.TaxpayerType}, Frases.Count={config.Emitter.Frases.Count}, CertUrl={config.Infile.CertificationUrl}");
+        foreach (var fr in config.Emitter.Frases)
+            _logService.LogInfo($"  Frase: TipoFrase={fr.TipoFrase}, CodigoEscenario={fr.CodigoEscenario}");
 
         // Initialize services
         var dataDir = Path.Combine(AppDirectory, config.System.DataDirectory);
@@ -129,6 +145,7 @@ public partial class App : Application
         menu.Items.Add("Abrir Carpeta de Logs", null, (_, _) => OpenLogsFolder());
         menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
         menu.Items.Add("Configuración", null, (_, _) => ShowSetupWizard());
+        menu.Items.Add("Licencia", null, (_, _) => ShowLicenseWindow());
         menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
         menu.Items.Add("Salir", null, (_, _) => ExitApplication());
 
@@ -214,6 +231,104 @@ public partial class App : Application
         });
     }
 
+    private async Task<bool> EnsureLicenseAsync()
+    {
+        if (_licenseService == null) return false;
+
+        var result = await _licenseService.CheckOnStartupAsync();
+
+        if (result.IsAllowed)
+        {
+            if (result.Status == LicenseStatus.OfflineGrace)
+            {
+                _logService?.LogWarning("License: running in offline grace period.");
+            }
+            else
+            {
+                _logService?.LogInfo($"License active: {result.ClientName} (expira {result.ExpiresDisplay})");
+            }
+            return true;
+        }
+
+        // Not allowed — show activation dialog so the user can enter / re-enter a key.
+        // The loop gives them a chance to retry or cancel explicitly.
+        while (true)
+        {
+            var preMessage = result.Message;
+            if (!string.IsNullOrEmpty(preMessage))
+                _logService?.LogWarning($"License: {preMessage}");
+
+            var window = new Views.LicenseActivationWindow(_licenseService);
+            if (!string.IsNullOrEmpty(preMessage))
+            {
+                MessageBox.Show(
+                    preMessage,
+                    "EleFEL - Licencia",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+
+            window.ShowDialog();
+
+            if (window.LicenseAccepted)
+                return true;
+
+            // User closed the dialog without activating. Confirm exit.
+            var choice = MessageBox.Show(
+                "EleFEL no puede iniciarse sin una licencia activa.\n\n¿Desea intentar de nuevo?",
+                "EleFEL - Licencia requerida",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (choice != MessageBoxResult.Yes)
+                return false;
+
+            // Re-evaluate in case the user fixed connectivity — next loop iteration tries again.
+            result = await _licenseService.CheckOnStartupAsync();
+            if (result.IsAllowed)
+                return true;
+        }
+    }
+
+    private void StartLicenseRecheckTimer()
+    {
+        // Silently re-verify once per 24h so the cache stays fresh.
+        _licenseRecheckTimer = new System.Threading.Timer(async _ =>
+        {
+            if (_licenseService == null) return;
+            try
+            {
+                var result = await _licenseService.CheckOnStartupAsync();
+                if (!result.IsAllowed)
+                {
+                    _logService?.LogWarning($"License recheck failed: {result.Status} - {result.Message}");
+                    Dispatcher.Invoke(() =>
+                    {
+                        _trayIcon?.ShowBalloonTip(
+                            5000,
+                            "EleFEL - Licencia",
+                            result.Message ?? "La licencia requiere atención.",
+                            System.Windows.Forms.ToolTipIcon.Warning);
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logService?.LogError("License recheck error", ex);
+            }
+        }, null, TimeSpan.FromHours(24), TimeSpan.FromHours(24));
+    }
+
+    private void ShowLicenseWindow()
+    {
+        Dispatcher.Invoke(() =>
+        {
+            if (_licenseService == null) return;
+            var window = new Views.LicenseActivationWindow(_licenseService);
+            window.ShowDialog();
+        });
+    }
+
     private void ShowSetupWizard()
     {
         Dispatcher.Invoke(() =>
@@ -254,6 +369,7 @@ public partial class App : Application
         if (_engine != null)
             await _engine.StopAsync();
 
+        _licenseRecheckTimer?.Dispose();
         _trayIcon?.Dispose();
         _engine?.Dispose();
         _logService?.Dispose();
@@ -262,6 +378,7 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _licenseRecheckTimer?.Dispose();
         _trayIcon?.Dispose();
         _engine?.Dispose();
         _logService?.Dispose();

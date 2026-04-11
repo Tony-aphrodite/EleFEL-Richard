@@ -87,7 +87,10 @@ public class ThermalPrinterService
         // DTE Info
         Write(CMD_BOLD_ON);
         WriteText("DOCUMENTO TRIBUTARIO ELECTRONICO");
-        WriteText("FACTURA ELECTRONICA");
+        if (emitter.TaxpayerType == "PEQ")
+            WriteText("FACTURA DE PEQUE\u00D1O CONTRIBUYENTE");
+        else
+            WriteText("FACTURA ELECTRONICA");
         Write(CMD_BOLD_OFF);
 
         WriteLine();
@@ -132,6 +135,16 @@ public class ThermalPrinterService
         Write(CMD_BOLD_OFF);
 
         WriteLine();
+
+        // PEQ mandatory phrase
+        if (emitter.TaxpayerType == "PEQ")
+        {
+            Write(CMD_ALIGN_CENTER);
+            Write(CMD_BOLD_ON);
+            WriteText("No genera derecho a cr\u00E9dito fiscal.");
+            Write(CMD_BOLD_OFF);
+            WriteLine();
+        }
 
         // Footer
         Write(CMD_ALIGN_CENTER);

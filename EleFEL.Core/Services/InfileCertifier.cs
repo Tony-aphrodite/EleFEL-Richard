@@ -321,12 +321,12 @@ public class InfileCertifier : IFelCertifier, IDisposable
             var root = doc.RootElement;
 
             var resultado = root.TryGetProperty("resultado", out var res) && res.GetBoolean();
-            var uuid = root.TryGetProperty("uuid", out var u) ? u.GetString() : null;
-            var fecha = root.TryGetProperty("fecha", out var f) ? f.GetString() : null;
-            var descripcion = root.TryGetProperty("descripcion", out var d) ? d.GetString() : null;
+            var uuid = GetStringOrNumber(root, "uuid");
+            var fecha = GetStringOrNumber(root, "fecha");
+            var descripcion = GetStringOrNumber(root, "descripcion");
 
             // Get the certified XML from response
-            var certifiedXml = root.TryGetProperty("xml_certificado", out var xmlCert) ? xmlCert.GetString() : null;
+            var certifiedXml = GetStringOrNumber(root, "xml_certificado");
 
             // Decode the signed XML to get the actual XML content for storage
             string? decodedXml = null;
@@ -344,13 +344,25 @@ public class InfileCertifier : IFelCertifier, IDisposable
 
             if (resultado && !string.IsNullOrEmpty(uuid))
             {
-                _log.LogInfo($"Certification successful: UUID={uuid}, Fecha={fecha}");
+                // Try to get serie/numero from JSON response first (may be string or number)
+                var serie = GetStringOrNumber(root, "serie");
+                var numero = GetStringOrNumber(root, "numero");
+
+                // If not in JSON, extract from certified XML
+                if ((string.IsNullOrEmpty(serie) || string.IsNullOrEmpty(numero)) && !string.IsNullOrEmpty(decodedXml))
+                {
+                    (serie, numero) = ExtractSerieNumeroFromXml(decodedXml, serie, numero);
+                }
+
+                _log.LogInfo($"Certification successful: UUID={uuid}, Serie={serie}, Numero={numero}, Fecha={fecha}");
 
                 return new CertificationResult
                 {
                     Success = true,
                     Uuid = uuid,
                     AuthorizationNumber = uuid,
+                    SerialNumber = serie,
+                    DteNumber = numero,
                     CertificationDate = DateTime.TryParse(fecha, out var dt) ? dt : DateTime.Now,
                     CertifiedXml = decodedXml
                 };
@@ -377,6 +389,51 @@ public class InfileCertifier : IFelCertifier, IDisposable
                 CertifiedXml = responseBody
             };
         }
+    }
+
+    /// <summary>
+    /// Safely extracts a property from a JSON object as string, handling both
+    /// JSON String and JSON Number types. Returns null if property is missing or null.
+    /// Infile sometimes returns numeric fields (like 'numero') as JSON numbers
+    /// instead of strings, which would cause GetString() to throw.
+    /// </summary>
+    private static string? GetStringOrNumber(System.Text.Json.JsonElement root, string propertyName)
+    {
+        if (!root.TryGetProperty(propertyName, out var el))
+            return null;
+        return el.ValueKind switch
+        {
+            System.Text.Json.JsonValueKind.String => el.GetString(),
+            System.Text.Json.JsonValueKind.Number => el.GetRawText(),
+            System.Text.Json.JsonValueKind.Null => null,
+            System.Text.Json.JsonValueKind.Undefined => null,
+            _ => el.GetRawText()
+        };
+    }
+
+    private (string? serie, string? numero) ExtractSerieNumeroFromXml(string xml, string? existingSerie, string? existingNumero)
+    {
+        var serie = existingSerie;
+        var numero = existingNumero;
+        try
+        {
+            // Parse XML to find <serie> and <numero> inside <certificacion>
+            var xmlDoc = System.Xml.Linq.XDocument.Parse(xml);
+            foreach (var el in xmlDoc.Descendants())
+            {
+                var localName = el.Name.LocalName.ToLowerInvariant();
+                if (string.IsNullOrEmpty(serie) && localName == "serie")
+                    serie = el.Value;
+                else if (string.IsNullOrEmpty(numero) && localName == "numero")
+                    numero = el.Value;
+            }
+            _log.LogInfo($"Extracted from XML: Serie={serie}, Numero={numero}");
+        }
+        catch (Exception ex)
+        {
+            _log.LogError("Failed to extract serie/numero from certified XML", ex);
+        }
+        return (serie, numero);
     }
 
     private static string ParseErrorMessage(string responseBody)

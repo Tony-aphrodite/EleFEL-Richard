@@ -141,7 +141,20 @@ public class XmlDteGenerator
     {
         var frases = new XElement(DteNs + "Frases");
 
-        // Use frases from config if available
+        // For FPEQ (Pequeño Contribuyente), SAT/Infile REQUIRES TipoFrase=3
+        // ("Frases de No Genera Derecho a Crédito Fiscal del IVA"), CodigoEscenario=1.
+        // TipoFrase=1 is explicitly forbidden. We enforce this in code and ignore config
+        // to prevent misconfiguration from breaking certification.
+        if (dteType == "FPEQ")
+        {
+            frases.Add(new XElement(DteNs + "Frase",
+                new XAttribute("TipoFrase", "3"),
+                new XAttribute("CodigoEscenario", "1")
+            ));
+            return frases;
+        }
+
+        // For other DTE types, use config frases if provided
         if (_emitter.Frases.Count > 0)
         {
             foreach (var frase in _emitter.Frases)
@@ -152,11 +165,11 @@ public class XmlDteGenerator
                 ));
             }
         }
-        else if (dteType == "FPEQ")
+        else if (dteType == "FPEQ_UNUSED")
         {
-            // Pequeño Contribuyente
+            // Pequeño Contribuyente - TipoFrase=3: "Frases de No Genera Derecho a Crédito Fiscal del IVA"
             frases.Add(new XElement(DteNs + "Frase",
-                new XAttribute("TipoFrase", "1"),
+                new XAttribute("TipoFrase", "3"),
                 new XAttribute("CodigoEscenario", "1")
             ));
         }
