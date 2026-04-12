@@ -127,7 +127,16 @@ public class ThermalPrinterService
 
         WriteLine();
 
-        // Total
+        // Total section
+        if (emitter.TaxpayerType != "PEQ")
+        {
+            // GEN: show subtotal + IVA breakdown (IVA 12% included in total)
+            var iva = Math.Round(invoice.Total * 12m / 112m, 2);
+            var subtotal = invoice.Total - iva;
+            WriteText(FormatLine("Subtotal:", $"Q{subtotal:N2}", lineWidth));
+            WriteText(FormatLine("IVA (12%):", $"Q{iva:N2}", lineWidth));
+        }
+
         Write(CMD_BOLD_ON);
         Write(CMD_DOUBLE_HEIGHT);
         WriteText(FormatLine("TOTAL:", $"Q{invoice.Total:N2}", lineWidth));

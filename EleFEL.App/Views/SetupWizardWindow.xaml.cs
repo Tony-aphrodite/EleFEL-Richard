@@ -205,7 +205,7 @@ public partial class SetupWizardWindow : Window
         // Add frases based on taxpayer type
         if (taxpayerType == "PEQ")
         {
-            config.Emitter.Frases.Add(new FraseConfig { TipoFrase = 1, CodigoEscenario = 1 });
+            config.Emitter.Frases.Add(new FraseConfig { TipoFrase = 3, CodigoEscenario = 1 });
         }
         else
         {
